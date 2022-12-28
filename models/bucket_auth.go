@@ -1,9 +1,5 @@
 package models
 
-import (
-	"fmt"
-)
-
 type BucketAuth struct {
 	Bucket       string
 	Username     string
@@ -17,44 +13,37 @@ var (
 	RelationshipBucketNone      = "None"
 )
 
-func BucketBindOwner(bucket *Bucket, user *User) (bool, error) {
-	if bucket == nil || user == nil {
-		return false, fmt.Errorf("输入格式错误")
-	}
-	db.Delete(&BucketAuth{Bucket: bucket.Name, Relationship: RelationshipBucketOwner})
-	db.Create(&BucketAuth{Bucket: bucket.Name, Username: user.Name, Relationship: RelationshipBucketOwner})
+func BucketBindOwner(bucket string, user string) (bool, error) {
+	db.Delete(&BucketAuth{Bucket: bucket, Relationship: RelationshipBucketOwner})
+	db.Create(&BucketAuth{Bucket: bucket, Username: user, Relationship: RelationshipBucketOwner})
 	return true, nil
 }
 
-func BucketAddConductor(bucket *Bucket, user *User) (bool, error) {
-	if bucket == nil || user == nil {
-		return false, fmt.Errorf("输入格式错误")
-	}
-	db.Delete(&BucketAuth{Bucket: bucket.Name, Username: user.Name})
-	db.Create(&BucketAuth{Bucket: bucket.Name, Username: user.Name, Relationship: RelationshipBucketConductor})
+func BucketAddConductor(bucket string, user string) (bool, error) {
+	db.Delete(&BucketAuth{Bucket: bucket, Username: user})
+	db.Create(&BucketAuth{Bucket: bucket, Username: user, Relationship: RelationshipBucketConductor})
 	return true, nil
 }
 
-func BucketAddViewer(bucket *Bucket, user *User) (bool, error) {
-	if bucket == nil || user == nil {
-		return false, fmt.Errorf("输入格式错误")
-	}
-	db.Delete(&BucketAuth{Bucket: bucket.Name, Username: user.Name})
-	db.Create(&BucketAuth{Bucket: bucket.Name, Username: user.Name, Relationship: RelationshipBucketViewer})
+func BucketAddViewer(bucket string, user string) (bool, error) {
+	db.Delete(&BucketAuth{Bucket: bucket, Username: user})
+	db.Create(&BucketAuth{Bucket: bucket, Username: user, Relationship: RelationshipBucketViewer})
 	return true, nil
 }
 
-func GetUserBucketAuth(bucket *Bucket, user *User) string {
-	if bucket == nil || user == nil {
-		return RelationshipBucketNone
-	}
-
+func GetUserBucketAuth(bucket string, user string) string {
 	var bucketAuth BucketAuth
-	err := db.Where(&BucketAuth{Bucket: bucket.Name, Username: user.Name}).First(&bucketAuth).Error
+	err := db.Where(&BucketAuth{Bucket: bucket, Username: user}).First(&bucketAuth).Error
 
 	if err != nil {
 		return RelationshipBucketNone
 	}
 
 	return bucketAuth.Relationship
+}
+
+func GetBucketAuthsRelatedUser(username string) []*BucketAuth {
+	bucketAuth := make([]*BucketAuth, 0)
+	db.Where(&BucketAuth{Username: username}).Find(&bucketAuth)
+	return bucketAuth
 }

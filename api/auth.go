@@ -30,7 +30,7 @@ func GetAuth(c *gin.Context) {
 		if isExist && err == nil {
 			token, err := utils.GenerateToken(body.Username, body.Password)
 			if err != nil {
-				log.Printf("user [%s] GenerateToken failed", body.Username)
+				log.Printf("user [%s] GenerateToken failed: %s", body.Username, err.Error())
 				c.JSON(http.StatusOK, respond.ResUsernameOrPasswordError())
 			} else {
 				res := respond.ResSuccess()

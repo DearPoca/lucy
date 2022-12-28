@@ -11,8 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const HeaderAuthorizationKey = "Authorization"
+const KeyOfUsername = "username"
+
 func JWT(c *gin.Context) {
-	token := c.GetHeader("Authorization")
+	token := c.GetHeader(HeaderAuthorizationKey)
 	if token == "" || !strings.HasPrefix(token, "Bearer") {
 		c.JSON(http.StatusUnauthorized, respond.ResParamInvalid())
 		c.Abort()
@@ -32,5 +35,6 @@ func JWT(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	c.Set(KeyOfUsername, claims.Username)
 	c.Next()
 }

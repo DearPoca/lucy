@@ -72,6 +72,17 @@ func ResAuthTimeout(data ...interface{}) *Respond {
 	return res
 }
 
+func ResBucketNameInvalidError(data ...interface{}) *Respond {
+	dataSlice := []interface{}(data)
+	res := &Respond{Code: 200, Msg: "bucket name invalid", Data: nil}
+	if len(dataSlice) == 1 {
+		res.Data = dataSlice[0]
+	} else if len(dataSlice) > 1 {
+		res.Data = dataSlice
+	}
+	return res
+}
+
 func ResUnknownError(data ...interface{}) *Respond {
 	dataSlice := []interface{}(data)
 	res := &Respond{Code: 200, Msg: "unknown error", Data: nil}

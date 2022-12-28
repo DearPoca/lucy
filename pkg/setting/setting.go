@@ -11,6 +11,7 @@ type App struct {
 	AppRoot   string `ini:"root"`
 	Port      int    `ini:"port"`
 	JwtSecret string `ini:"jwt_secret"`
+	JwtIssuer string `ini:"jwt_issuer"`
 }
 
 var AppSetting *App

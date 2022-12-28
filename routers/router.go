@@ -3,10 +3,10 @@ package routers
 import (
 	"fmt"
 
+	"lucy/api"
+	v1 "lucy/api/v1"
 	"lucy/middleware/jwt"
 	"lucy/pkg/setting"
-	"lucy/routers/api"
-	v1 "lucy/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +27,7 @@ func init() {
 	apiV1.Use(jwt.JWT)
 	{
 		apiV1.GET("/userinfo", v1.GetUserInfo)
+		apiV1.POST("/create_bucket", v1.CreateBucket)
 	}
 }
 

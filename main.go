@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	err := os.MkdirAll(setting.AppSetting.AppRoot, 0777)
+	err := os.MkdirAll(setting.AppSetting.AppRoot, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
