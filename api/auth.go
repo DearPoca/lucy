@@ -19,7 +19,7 @@ func GetAuth(c *gin.Context) {
 	}
 	if err := c.BindJSON(&body); err != nil {
 		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
 	valid := validation.Validation{}
@@ -31,9 +31,9 @@ func GetAuth(c *gin.Context) {
 			token, err := utils.GenerateToken(body.Username, body.Password)
 			if err != nil {
 				log.Printf("user [%s] GenerateToken failed: %s", body.Username, err.Error())
-				c.JSON(http.StatusOK, respond.ResUsernameOrPasswordError())
+				c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 			} else {
-				res := respond.ResSuccess()
+				res := respond.CreateRespond(respond.CodeSuccess)
 				data := make(map[string]interface{})
 				data["token"] = token
 				res.Data = data
@@ -41,10 +41,10 @@ func GetAuth(c *gin.Context) {
 			}
 		} else {
 			log.Printf("user [%s] CheckAuth failed, no such user", body.Username)
-			c.JSON(http.StatusOK, respond.ResUsernameOrPasswordError())
+			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 		}
 	} else {
-		c.JSON(http.StatusOK, respond.ResUsernameOrPasswordError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
 		}

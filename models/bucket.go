@@ -20,7 +20,7 @@ func CreateBucket(name string, cap int64) (bool, error) {
 	err := db.Where(Bucket{Name: name}).First(&bucket).Error
 
 	if err != gorm.ErrRecordNotFound {
-		return false, fmt.Errorf("bucket已存在")
+		return false, fmt.Errorf("bucket existed")
 	}
 
 	db.Create(&Bucket{

@@ -13,7 +13,7 @@ import (
 func GetUserInfo(c *gin.Context) {
 	tmp, ok := c.Get(jwt.KeyOfUsername)
 	if !ok {
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
 	username := tmp.(string)
@@ -32,5 +32,5 @@ func GetUserInfo(c *gin.Context) {
 		u.Buckets = append(u.Buckets, bucket{Name: bucketAuths[i].Bucket, Auth: bucketAuths[i].Relationship})
 	}
 
-	c.JSON(http.StatusOK, respond.ResSuccess(u))
+	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, u))
 }

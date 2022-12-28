@@ -19,7 +19,7 @@ const bucketDefaultCapacity = 512 * 1024 * 1024 * 1024
 func CreateBucket(c *gin.Context) {
 	tmp, ok := c.Get(jwt.KeyOfUsername)
 	if !ok {
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
 	username := tmp.(string)
@@ -30,7 +30,15 @@ func CreateBucket(c *gin.Context) {
 
 	if err := c.BindJSON(&body); err != nil {
 		log.Printf("An error occurred while CreateBucket parse param: %s", err.Error())
-		c.JSON(http.StatusOK, respond.ResBucketNameInvalidError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeBucketNameInvalidError))
+		return
+	}
+
+	bucket, _ := models.GetBucket(body.Bucket)
+
+	if bucket != nil {
+		log.Printf("bucket [%s] existed", bucket.Name)
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeBucketNameInvalidError, "bucket existed"))
 		return
 	}
 
@@ -38,7 +46,7 @@ func CreateBucket(c *gin.Context) {
 
 	if !ok || err != nil {
 		log.Printf("An error occurred while create bucket: %s", err.Error())
-		c.JSON(http.StatusOK, respond.ResBucketNameInvalidError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeBucketNameInvalidError))
 		return
 	}
 
@@ -48,8 +56,8 @@ func CreateBucket(c *gin.Context) {
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		log.Printf("Create directory [%s] failed: %s", path, err.Error())
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
-	c.JSON(http.StatusOK, respond.ResSuccess())
+	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

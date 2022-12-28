@@ -18,7 +18,6 @@ func init() {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	gin.SetMode(gin.DebugMode)
 
 	r.GET("/auth", api.GetAuth)
 	r.POST("/register", api.Register)

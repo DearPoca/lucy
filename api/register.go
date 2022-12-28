@@ -18,7 +18,7 @@ func Register(c *gin.Context) {
 	}
 	if err := c.BindJSON(&body); err != nil {
 		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
 	valid := validation.Validation{}
@@ -26,16 +26,16 @@ func Register(c *gin.Context) {
 
 	if !ok || err != nil {
 		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.ResUnknownError())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
 
 	if models.IsUserExisted(body.Username) {
 		log.Printf("User %s register, but existed", body.Username)
-		c.JSON(http.StatusOK, respond.ResUserExisted())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUserExisted))
 		return
 	}
 
 	models.CreateUser(body.Username, body.Password)
-	c.JSON(http.StatusOK, respond.ResSuccess())
+	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

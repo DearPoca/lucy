@@ -6,86 +6,31 @@ type Respond struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
-func ResSuccess(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "success", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
+const (
+	CodeSuccess                 = 200
+	CodeUserExisted             = 401
+	CodeParamInvalid            = 402
+	CodeUsernameOrPasswordError = 403
+	CodeAuthCheckTokenFail      = 404
+	CodeAuthTimeout             = 405
+	CodeBucketNameInvalidError  = 406
+	CodeUnknownError            = 400
+)
+
+var codeToMsg = map[int]string{
+	CodeSuccess:                 "success",
+	CodeUserExisted:             "user existed",
+	CodeParamInvalid:            "param invalid",
+	CodeUsernameOrPasswordError: "username or password error",
+	CodeAuthCheckTokenFail:      "auth check token fail",
+	CodeAuthTimeout:             "auth timeout",
+	CodeBucketNameInvalidError:  "bucket name invalid",
+	CodeUnknownError:            "unknown error",
 }
 
-func ResUserExisted(data ...interface{}) *Respond {
+func CreateRespond(code int, data ...interface{}) *Respond {
 	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "user existed", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResParamInvalid(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "param invalid", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResUsernameOrPasswordError(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "username or password error", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResAuthCheckTokenFail(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "auth check token fail", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResAuthTimeout(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "auth timeout", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResBucketNameInvalidError(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "bucket name invalid", Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
-	}
-	return res
-}
-
-func ResUnknownError(data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
-	res := &Respond{Code: 200, Msg: "unknown error", Data: nil}
+	res := &Respond{Code: code, Msg: codeToMsg[code], Data: nil}
 	if len(dataSlice) == 1 {
 		res.Data = dataSlice[0]
 	} else if len(dataSlice) > 1 {
