@@ -2,30 +2,41 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script src="https://cdn.bootcdn.net/ajax/libs/flv.js/1.6.2/flv.min.js"></script>
     <style>
-        body,center{
-            padding:0;
-            margin:0;
+        table {
+            width: 500px;
+            margin: 100px auto;
+            border: 2px gray solid;
+            border-collapse: collapse;
+            text-align: center;
         }
-        .v-container{
-            width:640px;
-            height:360px;
-            border:solid 1px red;
+
+        td, th {
+            border: 1px solid #333;
         }
-        video{
-            width:100%;
-            height:100%;
+
+        thead tr {
+            height: 40px;
+            background-color: #ccc;
         }
     </style>
 </head>
 <body>
-<div class="v-container">
-    <video id="player" muted autoplay="autoplay" preload="auto" controls="controls">
-    </video>
-</div>
+<table>
+    <thead>
+    <tr>
+        <th>room_id</th>
+        <th>room_name</th>
+        <th>room_path</th>
+        <th>link</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 </body>
-<script src="/static/js/flvPlayer.js" type="text/javascript" charset="utf-8">
+<script src="/assets/js/show_rooms.js" type="text/javascript" charset="utf-8">
 </script>
+</body>
 </html>
 

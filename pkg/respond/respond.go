@@ -29,12 +29,11 @@ var codeToMsg = map[int]string{
 }
 
 func CreateRespond(code int, data ...interface{}) *Respond {
-	dataSlice := []interface{}(data)
 	res := &Respond{Code: code, Msg: codeToMsg[code], Data: nil}
-	if len(dataSlice) == 1 {
-		res.Data = dataSlice[0]
-	} else if len(dataSlice) > 1 {
-		res.Data = dataSlice
+	if len(data) == 1 {
+		res.Data = data[0]
+	} else if len(data) > 1 {
+		res.Data = data
 	}
 	return res
 }

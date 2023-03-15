@@ -8,45 +8,26 @@ import (
 	"lucy/service/user_service"
 	"lucy/utils"
 
-	"github.com/beego/beego/validation"
 	"github.com/gin-gonic/gin"
 )
 
 func Auth(c *gin.Context) {
-	var body struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := c.BindJSON(&body); err != nil {
-		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
-		return
-	}
-	valid := validation.Validation{}
-	ok, _ := valid.Valid(&body)
+	username := c.Query("username")
+	password := c.Query("password")
 
-	if ok {
-		isExist, err := user_service.CheckAuth(body.Username, body.Password)
-		if isExist && err == nil {
-			token, err := utils.GenerateToken(body.Username, body.Password)
-			if err != nil {
-				log.Printf("user [%s] GenerateToken failed: %s", body.Username, err.Error())
-				c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
-			} else {
-				res := respond.CreateRespond(respond.CodeSuccess)
-				data := make(map[string]interface{})
-				data["token"] = token
-				res.Data = data
-				c.JSON(http.StatusOK, res)
-			}
-		} else {
-			log.Printf("user [%s] CheckAuth failed, no such user", body.Username)
+	isExist, err := user_service.CheckAuth(username, password)
+	if isExist && err == nil {
+		token, err := utils.GenerateToken(username, password)
+		if err != nil {
+			log.Printf("user [%s] GenerateToken failed: %s", username, err.Error())
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
+		} else {
+			c.SetCookie("token", token, 0,
+				"", "", false, true)
+			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 		}
 	} else {
+		log.Printf("user [%s] CheckAuth failed, no such user", password)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
-		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
-		}
 	}
 }

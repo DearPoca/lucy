@@ -13,8 +13,10 @@ import (
 
 func Register(c *gin.Context) {
 	var body struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		Email     string `json:"email"`
+		Telephone string `json:"telephone"`
 	}
 	if err := c.BindJSON(&body); err != nil {
 		log.Printf("An error occurred while registering: %s", err.Error())

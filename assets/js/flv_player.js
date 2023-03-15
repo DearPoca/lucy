@@ -18,6 +18,6 @@ if (flvjs.isSupported()) {
         flvPlayer.play()
     })
 
-    xhr.open("get", "http://"+ip_addr+"/video_url")
+    xhr.open("get", `http://${ip_addr}/video_url`)
     xhr.send()
 }

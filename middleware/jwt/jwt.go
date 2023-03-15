@@ -1,8 +1,8 @@
 package jwt
 
 import (
+	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"lucy/utils"
@@ -14,21 +14,20 @@ const HeaderAuthorizationKey = "Authorization"
 const KeyOfUsername = "username"
 
 func JWT(c *gin.Context) {
-	token := c.GetHeader(HeaderAuthorizationKey)
 	redirect := func() {
 		c.Redirect(http.StatusTemporaryRedirect, "/login")
 		c.Abort()
 	}
-	if token == "" || !strings.HasPrefix(token, "Bearer") {
+	token, err := c.Cookie("token")
+	if token == "" || err != nil {
+		log.Printf("no cookie, redirect, token: %s, err: %s", token, err.Error())
 		redirect()
 		return
 	}
 
-	// Remove "Bearer "
-	token = token[7:]
-
 	claims, err := utils.ParseToken(token)
 	if err != nil {
+		log.Printf("token parse failed, err: %s", err.Error())
 		redirect()
 		return
 	} else if time.Now().Unix() > claims.ExpiresAt {
