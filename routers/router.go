@@ -22,7 +22,7 @@ func init() {
 	r.Use(gin.Recovery())
 
 	// Assets
-	r.LoadHTMLGlob("assets/*.html")
+	r.LoadHTMLGlob("assets/*.tmpl")
 	r.Static("/assets/js", "assets/js")
 	r.StaticFile("/favicon.ico", "assets/favicon.ico")
 	r.StaticFS("/images", http.Dir("assets/images"))

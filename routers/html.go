@@ -10,15 +10,15 @@ import (
 )
 
 func index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{})
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{})
 }
 
 func login(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", gin.H{})
+	c.HTML(http.StatusOK, "login.tmpl", gin.H{})
 }
 
 func register(c *gin.Context) {
-	c.HTML(http.StatusOK, "register.html", gin.H{})
+	c.HTML(http.StatusOK, "register.tmpl", gin.H{})
 }
 
 func play(c *gin.Context) {
@@ -27,7 +27,7 @@ func play(c *gin.Context) {
 	for i, _ := range streams {
 		if streams[i].Id == roomId {
 			url := fmt.Sprintf("webrtc://%s%s", "localhost", streams[i].Url)
-			c.HTML(http.StatusOK, "play.html", gin.H{
+			c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
 				"webrtc_url": url,
 			})
 			return

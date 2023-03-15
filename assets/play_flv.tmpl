@@ -25,6 +25,20 @@
     </video>
 </div>
 </body>
-<script src="/static/js/flvPlayer.js" type="text/javascript" charset="utf-8">
+<script type="text/javascript" charset="utf-8">
+    if (flvjs.isSupported()) {
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+            return
+        }
+
+        var videoElement = document.getElementById('player')
+        var flvPlayer = flvjs.createPlayer({
+            type: 'flv',
+            url: {{ .rtmp_url }}
+        })
+        flvPlayer.attachMediaElement(videoElement)
+        flvPlayer.load()
+        flvPlayer.play()
+    }
 </script>
 </html>
