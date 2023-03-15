@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"lucy/pkg/respond"
 	"lucy/utils"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +15,12 @@ const KeyOfUsername = "username"
 
 func JWT(c *gin.Context) {
 	token := c.GetHeader(HeaderAuthorizationKey)
-	if token == "" || !strings.HasPrefix(token, "Bearer") {
-		c.JSON(http.StatusUnauthorized, respond.CreateRespond(respond.CodeParamInvalid))
+	redirect := func() {
+		c.Redirect(http.StatusTemporaryRedirect, "/login")
 		c.Abort()
+	}
+	if token == "" || !strings.HasPrefix(token, "Bearer") {
+		redirect()
 		return
 	}
 
@@ -27,12 +29,10 @@ func JWT(c *gin.Context) {
 
 	claims, err := utils.ParseToken(token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, respond.CreateRespond(respond.CodeAuthCheckTokenFail))
-		c.Abort()
+		redirect()
 		return
 	} else if time.Now().Unix() > claims.ExpiresAt {
-		c.JSON(http.StatusUnauthorized, respond.CreateRespond(respond.CodeAuthTimeout))
-		c.Abort()
+		redirect()
 		return
 	}
 	c.Set(KeyOfUsername, claims.Username)

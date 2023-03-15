@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"lucy/models"
 	"lucy/pkg/respond"
+	"lucy/service/user_service"
 
 	"github.com/beego/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -30,12 +30,12 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	if models.IsUserExisted(body.Username) {
+	if user_service.IsUserExisted(body.Username) {
 		log.Printf("User %s register, but existed", body.Username)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUserExisted))
 		return
 	}
 
-	models.CreateUser(body.Username, body.Password)
+	user_service.CreateUser(body.Username, body.Password)
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

@@ -37,5 +37,9 @@ func init() {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(-1)
 
-	db.AutoMigrate(&User{}, &Bucket{}, &BucketAuth{})
+	db.AutoMigrate(&User{})
+}
+
+func Db() *gorm.DB {
+	return db
 }

@@ -7,14 +7,16 @@ import (
 	"github.com/go-ini/ini"
 )
 
+var AppSetting *App
+var MysqlSetting *Mysql
+var SrsSetting *Srs
+
 type App struct {
 	AppRoot   string `ini:"root"`
 	Port      int    `ini:"port"`
 	JwtSecret string `ini:"jwt_secret"`
 	JwtIssuer string `ini:"jwt_issuer"`
 }
-
-var AppSetting *App
 
 type Mysql struct {
 	User     string `ini:"user"`
@@ -23,7 +25,13 @@ type Mysql struct {
 	Database string `ini:"database"`
 }
 
-var MysqlSetting *Mysql
+type Srs struct {
+	RtmpPort       string `ini:"rtmp_port"`
+	NginxHttpPort  string `ini:"nginx_http_port"`
+	NginxHttpsPort string `ini:"nginx_https_port"`
+	HttpApiPort    string `ini:"http_api_port"`
+	RtcServerPort  string `ini:"rtc_server_port"`
+}
 
 func init() {
 	confFile := os.Args[1]
@@ -33,6 +41,7 @@ func init() {
 	}
 	AppSetting = &App{}
 	MysqlSetting = &Mysql{}
+	SrsSetting = &Srs{}
 
 	err = cfg.Section("app").MapTo(AppSetting)
 	if err != nil {
@@ -42,5 +51,10 @@ func init() {
 	err = cfg.Section("mysql").MapTo(MysqlSetting)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo datebase err: %v", err)
+	}
+
+	err = cfg.Section("srs").MapTo(SrsSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo srs err: %v", err)
 	}
 }

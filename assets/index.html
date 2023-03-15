@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="https://cdn.bootcdn.net/ajax/libs/flv.js/1.6.2/flv.min.js"></script>
+    <style>
+        body,center{
+            padding:0;
+            margin:0;
+        }
+        .v-container{
+            width:640px;
+            height:360px;
+            border:solid 1px red;
+        }
+        video{
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+<body>
+<div class="v-container">
+    <video id="player" muted autoplay="autoplay" preload="auto" controls="controls">
+    </video>
+</div>
+</body>
+<script src="/static/js/flvPlayer.js" type="text/javascript" charset="utf-8">
+</script>
+</html>
+

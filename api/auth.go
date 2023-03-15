@@ -4,15 +4,15 @@ import (
 	"log"
 	"net/http"
 
-	"lucy/models"
 	"lucy/pkg/respond"
+	"lucy/service/user_service"
 	"lucy/utils"
 
 	"github.com/beego/beego/validation"
 	"github.com/gin-gonic/gin"
 )
 
-func GetAuth(c *gin.Context) {
+func Auth(c *gin.Context) {
 	var body struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -26,7 +26,7 @@ func GetAuth(c *gin.Context) {
 	ok, _ := valid.Valid(&body)
 
 	if ok {
-		isExist, err := models.CheckAuth(body.Username, body.Password)
+		isExist, err := user_service.CheckAuth(body.Username, body.Password)
 		if isExist && err == nil {
 			token, err := utils.GenerateToken(body.Username, body.Password)
 			if err != nil {
