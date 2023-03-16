@@ -32,7 +32,7 @@ func init() {
 	r.GET("/login", login)
 	r.GET("/register", register)
 	r.GET("/play/webrtc", playWebrtc)
-	r.GET("/play/rtmp", playRtmp)
+	r.GET("/play/flv", playFlv)
 
 	// Background
 	r.POST("/api/register", api.Register)

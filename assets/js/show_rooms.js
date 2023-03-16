@@ -4,18 +4,10 @@ function createTd(father, text) {
     td.innerHTML = text;
 }
 
-function createLink(father, id) {
-    let ip_addr = document.location.hostname;
-
-    let webrtc_link = document.createElement("td");
-    let webrtc_page_url = `/play/webrtc?room_id=${id}`
-    father.appendChild(webrtc_link);
-    webrtc_link.innerHTML = `<a href=${webrtc_page_url} target="_blank">Link</a>`
-
-    let rtmp_link = document.createElement("td");
-    let rtmp_page_url = `/play/rtmp?room_id=${id}`
-    father.appendChild(rtmp_link);
-    rtmp_link.innerHTML = `<a href=${rtmp_page_url} target="_blank">Link</a>`
+function createLink(father, url) {
+    let link = document.createElement("td");
+    father.appendChild(link);
+    link.innerHTML = `<a href=${url} target="_blank">Link</a>`
 }
 
 function showTable() {
@@ -36,13 +28,16 @@ function showTable() {
                     createTd(tr, room["id"])
                     createTd(tr, room["name"])
                     createTd(tr, room["path"])
-                    createLink(tr, resJson["data"][i]["id"]);
+                    let webrtc_page_url = `/play/webrtc?room_id=${room["id"]}`
+                    let flv_page_url = `/play/flv?room_id=${room["id"]}`
+                    createLink(tr, webrtc_page_url)
+                    createLink(tr, flv_page_url)
                 }
             } else {
                 window.alert("get rooms failed");
             }
         }
-    };
+    }
 
     let url = `http://${ip_addr}/api/v1/get_rooms`
     xhr.open("get", url)

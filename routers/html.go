@@ -37,7 +37,7 @@ func playWebrtc(c *gin.Context) {
 	c.String(http.StatusOK, "room no found!")
 }
 
-func playRtmp(c *gin.Context) {
+func playFlv(c *gin.Context) {
 	streams := srs.GetStreams()
 	roomId := c.Query("room_id")
 	for i, _ := range streams {
@@ -46,8 +46,8 @@ func playRtmp(c *gin.Context) {
 				setting.SrsSetting.Ip,
 				setting.SrsSetting.NginxHttpPort,
 				streams[i].Url)
-			c.HTML(http.StatusOK, "play_rtmp.tmpl", gin.H{
-				"rtmp_url": url,
+			c.HTML(http.StatusOK, "play_flv.tmpl", gin.H{
+				"flv_url": url,
 			})
 			return
 		}
