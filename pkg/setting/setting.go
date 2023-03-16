@@ -27,6 +27,7 @@ type Mysql struct {
 
 type Srs struct {
 	Run            bool   `ini:"run"`
+	Ip             string `ini:"ip"`
 	RtmpPort       string `ini:"rtmp_port"`
 	NginxHttpPort  string `ini:"nginx_http_port"`
 	NginxHttpsPort string `ini:"nginx_https_port"`

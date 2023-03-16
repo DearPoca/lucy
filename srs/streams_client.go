@@ -61,7 +61,7 @@ type StreamsInfo struct {
 
 func GetStreams() []Stream {
 	var myClient = &http.Client{}
-	resp, err := myClient.Get(fmt.Sprintf("%s/api/v1/streams/", urlPrefix))
+	resp, err := myClient.Get(fmt.Sprintf("%s/api/v1/streams/", httpApiPath))
 	if err != nil {
 		log.Printf("Get streams failed, err: %s", err.Error())
 		return nil

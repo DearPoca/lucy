@@ -31,7 +31,8 @@ func init() {
 	r.GET("/", jwt.JWT, index)
 	r.GET("/login", login)
 	r.GET("/register", register)
-	r.GET("/play", play)
+	r.GET("/play/webrtc", playWebrtc)
+	r.GET("/play/rtmp", playRtmp)
 
 	// Background
 	r.POST("/api/register", api.Register)

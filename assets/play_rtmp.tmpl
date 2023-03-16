@@ -2,15 +2,16 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script src="https://cdn.bootcdn.net/ajax/libs/flv.js/1.6.2/flv.min.js"></script>
+    <script src="/assets/js/third_party/flv.min.js"></script>
+    <title>rtmp live</title>
     <style>
         body,center{
             padding:0;
             margin:0;
         }
         .v-container{
-            width:640px;
-            height:360px;
+            width:1280px;
+            height:720px;
             border:solid 1px red;
         }
         video{
@@ -21,17 +22,13 @@
 </head>
 <body>
 <div class="v-container">
-    <video id="player" muted autoplay="autoplay" preload="auto" controls="controls">
+    <video id="flv_player" muted autoplay="autoplay" preload="auto" controls="controls">
     </video>
 </div>
 </body>
 <script type="text/javascript" charset="utf-8">
     if (flvjs.isSupported()) {
-        if (xhr.readyState !== XMLHttpRequest.DONE) {
-            return
-        }
-
-        var videoElement = document.getElementById('player')
+        var videoElement = document.getElementById('flv_player')
         var flvPlayer = flvjs.createPlayer({
             type: 'flv',
             url: {{ .rtmp_url }}

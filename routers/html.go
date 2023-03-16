@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"lucy/pkg/setting"
 	"lucy/srs"
 
 	"github.com/gin-gonic/gin"
@@ -21,14 +22,32 @@ func register(c *gin.Context) {
 	c.HTML(http.StatusOK, "register.tmpl", gin.H{})
 }
 
-func play(c *gin.Context) {
+func playWebrtc(c *gin.Context) {
 	streams := srs.GetStreams()
 	roomId := c.Query("room_id")
 	for i, _ := range streams {
 		if streams[i].Id == roomId {
-			url := fmt.Sprintf("webrtc://%s%s", "localhost", streams[i].Url)
+			url := fmt.Sprintf("webrtc://%s%s", setting.SrsSetting.Ip, streams[i].Url)
 			c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
 				"webrtc_url": url,
+			})
+			return
+		}
+	}
+	c.String(http.StatusOK, "room no found!")
+}
+
+func playRtmp(c *gin.Context) {
+	streams := srs.GetStreams()
+	roomId := c.Query("room_id")
+	for i, _ := range streams {
+		if streams[i].Id == roomId {
+			url := fmt.Sprintf("http://%s:%s%s.flv",
+				setting.SrsSetting.Ip,
+				setting.SrsSetting.NginxHttpPort,
+				streams[i].Url)
+			c.HTML(http.StatusOK, "play_rtmp.tmpl", gin.H{
+				"rtmp_url": url,
 			})
 			return
 		}

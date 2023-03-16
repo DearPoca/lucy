@@ -9,6 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type user struct {
+	Name string `json:"name"`
+}
+
 func GetUserInfo(c *gin.Context) {
 	tmp, ok := c.Get(jwt.KeyOfUsername)
 	if !ok {
@@ -17,9 +21,7 @@ func GetUserInfo(c *gin.Context) {
 	}
 	username := tmp.(string)
 
-	u := struct {
-		Name string `json:"name"`
-	}{Name: username}
+	u := user{username}
 
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, u))
 }

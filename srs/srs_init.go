@@ -12,7 +12,7 @@ import (
 	"lucy/pkg/setting"
 )
 
-var urlPrefix string
+var httpApiPath string
 
 func monitorLog(stdout *bufio.Reader, stderr *bufio.Reader) {
 	logFilePath := "./srs/srs.log"
@@ -51,7 +51,10 @@ func monitorLog(stdout *bufio.Reader, stderr *bufio.Reader) {
 }
 
 func init() {
-	urlPrefix = fmt.Sprintf("http://localhost:%s", setting.SrsSetting.HttpApiPort)
+	httpApiPath = fmt.Sprintf("http://%s:%s",
+		setting.SrsSetting.Ip,
+		setting.SrsSetting.HttpApiPort,
+	)
 	if !setting.SrsSetting.Run {
 		return
 	}
