@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
         table {
-            width: 600px;
+            width: 1200px;
             margin: 100px auto;
             border: 2px gray solid;
             border-collapse: collapse;
@@ -16,25 +16,37 @@
         }
 
         thead tr {
-            height: 40px;
             background-color: #ccc;
+        }
+
+        #links {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
-<table>
-    <thead>
-    <tr>
-        <th>room_id</th>
-        <th>room_name</th>
-        <th>room_path</th>
-        <th>webrtc link</th>
-        <th>flv link</th>
-    </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+    <div id="links">
+		<a href="#">Link 1</a>
+		<a href="#">Link 2</a>
+	</div>
+    <table>
+        <thead>
+        <tr>
+            <th>room_id</th>
+            <th>room_name</th>
+            <th>room_path</th>
+            <th>webrtc link</th>
+            <th>flv link</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </body>
 <script src="/assets/js/show_rooms.js" type="text/javascript" charset="utf-8">
 </script>

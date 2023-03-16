@@ -1,24 +1,28 @@
-function Register() {
-    let ip_addr = document.location.hostname;
-    let xhr = new XMLHttpRequest();
+let registerForm = document.getElementById("register-form");
+registerForm.addEventListener("submit", function (event) {
+    event.preventDefault(); // 阻止表单默认提交行为
+
+    const xhr = new XMLHttpRequest();
+    const url = "/api/register";
+    const formData = new FormData(registerForm);
+
+    const params = new URLSearchParams(formData).toString(); // 将表单数据序列化为URL参数
+
+    xhr.open("POST", url + "?" + params);
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            const resJson = JSON.parse(xhr.response)
-            console.log(resJson)
-            if (resJson["code"] == 200) {
-                window.location.replace(`http://${ip_addr}`)
+            const response = JSON.parse(xhr.responseText);
+            console.log(response)
+            if (response["code"] == 200) {
+                window.location.href = "/"
             } else {
-                window.alert("register failed, err: " + resJson["msg"]);
+                window.alert("register failed, err: " + response["msg"]);
             }
         }
     };
 
-    let username = document.getElementById("Username").value
-    let password = document.getElementById("Password").value
-    let email = document.getElementById("Email").value
-    let telephone = document.getElementById("Telephone").value
-    let url = `http://${ip_addr}/api/register?username=${username}&password=${password}&email=${email}&telephone=${telephone}`
-    xhr.open("post", url)
     xhr.send();
-}
+});
+
+

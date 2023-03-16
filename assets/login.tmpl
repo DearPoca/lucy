@@ -3,30 +3,54 @@
 <head>
     <meta charset="utf-8">
     <title>Login</title>
-    <script src="/assets/js/login.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+        form {
+          width: 300px;
+          margin: 0 auto;
+        }
+
+        input[type=text], input[type=password] {
+          width: 100%;
+          padding: 12px 20px;
+          margin: 8px 0;
+          box-sizing: border-box;
+          border: 2px solid #ccc;
+          border-radius: 4px;
+        }
+
+        input[type=submit] {
+          background-color: #4CAF50;
+          color: white;
+          padding: 14px 20px;
+          margin: 8px 0;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+          background-color: #45a049;
+        }
+
+        .my-button {
+          width: 130px;
+          height: 40px;
+          padding: 10px 30px;
+          font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-<center>
-    <form>
-        <table>
-            <tr>
-                <td>Username</td>
-                <td><input type="text" class="form-control" id="Username" placeholder="Username"></td>
-            </tr>
-            <tr>
-                <td>Password</td>
-                <td><input type="text" class="form-control" id="Password" placeholder="Password"></td>
-            </tr>
-        <table>
-        <div>
-            <button type="button" onclick="return Login()">
-                <span>login</span>
-            </button>
-            <button type="button" onclick='window.location.href="/register"'>
-                <span>register</span>
-            </button>
-        </div>
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <center>
+            <button type="submit" class="my-button">login</button>
+            <button type="button" class="my-button" onclick='window.location.href="/register"'>register</button>
+        </center>
     </form>
-</center>
 </body>
+<script src="/assets/js/login.js" type="text/javascript" charset="utf-8"></script>
 </html>

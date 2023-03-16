@@ -28,5 +28,6 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeParamInvalid))
 		return
 	}
+	log.Printf("user [%s] register, email: %s, telephone number: %s", username, email, telephone)
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script src="/assets/js/third_party/flv.min.js"></script>
     <title>flv live</title>
+    <meta charset="UTF-8">
+    <script src="/assets/js/third_party/flv.min.js"></script>
     <style>
         body,center{
             padding:0;
@@ -21,10 +21,11 @@
     </style>
 </head>
 <body>
-<div class="v-container">
-    <video id="flv_player" muted autoplay="autoplay" preload="auto" controls="controls">
-    </video>
-</div>
+    <center>
+        <div class="v-container">
+            <video id="flv_player" autoplay="autoplay" preload="auto" controls="controls"></video>
+        </div>
+    </center>
 </body>
 <script type="text/javascript" charset="utf-8">
     if (flvjs.isSupported()) {
