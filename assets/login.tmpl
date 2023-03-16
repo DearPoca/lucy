@@ -2,41 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
-    <script src="/assets/js/login.js" type="text/javascript" charset="utf-8">
-    </script>
+    <script src="/assets/js/login.js" type="text/javascript" charset="utf-8"></script>
 </head>
-
 <body>
-<div class="layout">
-    <div id="注册">
-        <a href="register">register</a>
-    </div>
-
-    <div class="input">
-        <form href="#" method="get" onsubmit="return Login()">
-
-            <div>
-                </span>Username</span>
-                <input type="text" class="form-control" id="Username" placeholder="Username"
-                       aria-describedby="basic-addon1">
-            </div>
-
-            <div>
-                </span>Password</span>
-                <input type="text" class="form-control" id="Password" placeholder="Password"
-                       aria-describedby="basic-addon1">
-            </div>
-
-            <div>
-                <button type="submit">
-                    <span>Login</span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+<center>
+    <form>
+        <table>
+            <tr>
+                <td>Username</td>
+                <td><input type="text" class="form-control" id="Username" placeholder="Username"></td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input type="text" class="form-control" id="Password" placeholder="Password"></td>
+            </tr>
+        <table>
+        <div>
+            <button type="button" onclick="return Login()">
+                <span>login</span>
+            </button>
+            <button type="button" onclick='window.location.href="/register"'>
+                <span>register</span>
+            </button>
+        </div>
+    </form>
+</center>
 </body>
 </html>

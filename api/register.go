@@ -7,37 +7,26 @@ import (
 	"lucy/pkg/respond"
 	"lucy/service/user_service"
 
-	"github.com/beego/beego/validation"
 	"github.com/gin-gonic/gin"
 )
 
 func Register(c *gin.Context) {
-	var body struct {
-		Username  string `json:"username"`
-		Password  string `json:"password"`
-		Email     string `json:"email"`
-		Telephone string `json:"telephone"`
-	}
-	if err := c.BindJSON(&body); err != nil {
-		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
-		return
-	}
-	valid := validation.Validation{}
-	ok, err := valid.Valid(&body)
+	username := c.Query("username")
+	password := c.Query("password")
+	email := c.Query("email")
+	telephone := c.Query("telephone")
 
-	if !ok || err != nil {
-		log.Printf("An error occurred while registering: %s", err.Error())
-		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
-		return
-	}
-
-	if user_service.IsUserExisted(body.Username) {
-		log.Printf("User %s register, but existed", body.Username)
+	if user_service.IsUserExisted(username) {
+		log.Printf("User [%s] register, but existed", username)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUserExisted))
 		return
 	}
 
-	user_service.CreateUser(body.Username, body.Password)
+	err := user_service.CreateUser(username, password, email, telephone)
+	if err != nil {
+		log.Printf("User [%s] register failed, err: %s", username, err.Error())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeParamInvalid))
+		return
+	}
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

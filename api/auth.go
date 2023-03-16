@@ -27,7 +27,7 @@ func Auth(c *gin.Context) {
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 		}
 	} else {
-		log.Printf("user [%s] CheckAuth failed, no such user", password)
+		log.Printf("user [%s] CheckAuth failed, no such user or password error", username)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 	}
 }

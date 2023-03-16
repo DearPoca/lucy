@@ -24,20 +24,20 @@ let xhr = new XMLHttpRequest();
 
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
-        const resJSON = JSON.parse(xhr.response)
-        console.log(resJSON)
-        if (resJSON["code"] == 200) {
+        const resJson = JSON.parse(xhr.response)
+        console.log(resJson)
+        if (resJson["code"] == 200) {
             let items = [];
             let table = document.querySelector("table");
-            for (let i = 0; i < resJSON["data"].length; i++) {
-                let stream = resJSON["data"][i]
+            for (let i = 0; i < resJson["data"].length; i++) {
+                let stream = resJson["data"][i]
                 items[i] = new Item_Data(stream["id"], stream["name"], stream["url"])
                 let tr = document.createElement("tr");
                 table.children[1].appendChild(tr);
                 for (let j in items[i]) {
                     createTd(tr, items[i][j]);
                 }
-                let link = createLink(tr, resJSON["data"][i]["id"]);
+                let link = createLink(tr, resJson["data"][i]["id"]);
             }
             let as = document.querySelectorAll("a");
             console.log(as);

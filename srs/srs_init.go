@@ -51,6 +51,10 @@ func monitorLog(stdout *bufio.Reader, stderr *bufio.Reader) {
 }
 
 func init() {
+	urlPrefix = fmt.Sprintf("http://localhost:%s", setting.SrsSetting.HttpApiPort)
+	if !setting.SrsSetting.Run {
+		return
+	}
 	cmd := exec.Command("bash", "./srs/run.sh",
 		setting.SrsSetting.RtmpPort,
 		setting.SrsSetting.NginxHttpPort,
@@ -74,8 +78,6 @@ func init() {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-
-	urlPrefix = fmt.Sprintf("http://localhost:%s", setting.SrsSetting.HttpApiPort)
 
 	go monitorLog(stdoutReader, stderrReader)
 }
