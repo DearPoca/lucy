@@ -1,32 +1,36 @@
 package v1
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"lucy/pkg/respond"
 	"lucy/srs"
+	"lucy/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type room struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Path string `json:"path"`
+	Id         string `json:"id"`
+	Owner      string `json:"owner"`
+	WebrtcLink string `json:"webrtc link"`
+	FlvLink    string `json:"flv link"`
 }
 
 func GetRooms(c *gin.Context) {
 	streams := srs.GetStreams()
-	log.Printf("Streams: %v", streams)
 	rooms := make([]room, 0)
 	for i, _ := range streams {
 		r := room{
-			Id:   streams[i].Id,
-			Name: streams[i].Name,
-			Path: streams[i].Url,
+			Id:         streams[i].Id,
+			Owner:      utils.ParseUserFromRoomPath(streams[i].Url),
+			WebrtcLink: fmt.Sprintf("/play/webrtc?room_id=%s", streams[i].Id),
+			FlvLink:    fmt.Sprintf("/play/flv?room_id=%s", streams[i].Id),
 		}
 		rooms = append(rooms, r)
+		log.Printf("Stream: %v", streams[i])
 	}
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, rooms))
 }

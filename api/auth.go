@@ -17,12 +17,13 @@ func Auth(c *gin.Context) {
 
 	isExist, err := user_service.CheckAuth(username, password)
 	if isExist && err == nil {
-		token, err := utils.GenerateToken(username, password)
+		hour := 30 * 24
+		token, err := utils.GenerateToken(username, password, hour)
 		if err != nil {
 			log.Printf("user [%s] GenerateToken failed: %s", username, err.Error())
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 		} else {
-			c.SetCookie("token", token, 0,
+			c.SetCookie("token", token, hour*60*60,
 				"", "", false, true)
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 		}

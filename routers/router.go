@@ -22,17 +22,19 @@ func init() {
 	r.Use(gin.Recovery())
 
 	// Assets
-	r.LoadHTMLGlob("assets/*.tmpl")
-	r.Static("/assets/js", "assets/js")
+	r.LoadHTMLGlob("assets/html/*.tmpl")
+	r.StaticFS("/assets/js", http.Dir("assets/js"))
+	r.StaticFS("/assets/css", http.Dir("assets/css"))
 	r.StaticFile("/favicon.ico", "assets/favicon.ico")
-	r.StaticFS("/images", http.Dir("assets/images"))
 
 	// Front
-	r.GET("/", jwt.JWT, index)
 	r.GET("/login", login)
 	r.GET("/register", register)
-	r.GET("/play/webrtc", playWebrtc)
-	r.GET("/play/flv", playFlv)
+	r.GET("/", jwt.JWT, index)
+	r.GET("/play/webrtc", jwt.JWT, playWebrtc)
+	r.GET("/play/flv", jwt.JWT, playFlv)
+	r.GET("/userinfo", jwt.JWT, userinfo)
+	r.GET("/my_live", jwt.JWT, myLive)
 
 	// Background
 	r.POST("/api/register", api.Register)

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>my live</title>
+    <div id="username" data-value={{ .username }}></div>
+    <script src="/assets/js/common_links.js"></script>
+    <link rel="stylesheet" href="/assets/css/table.css">
+    <script src="/assets/js/third_party/srs.sdk.js"></script>
+    <style>
+        button {
+            height: 40px;
+            padding: 10px 30px 10px 30px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <br><br>
+    <center id="buttons-select">
+        <button onclick="startLiveWithCamera()">screen sharing</button>
+        <button onclick="startLiveWithCamera()">camera capture</button>
+    </center>
+    <br><br>
+    <center>
+        <div id="video-container">
+        </div>
+    </center>
+</body>
+<script>
+    function removeButtons() {
+        let buttons = document.getElementById("buttons-select");
+        buttons.remove()
+    }
+
+    function startLiveWithCamera() {
+        constraints = {
+            audio: true,
+            video: {
+                width: {ideal: 1280, max: 1920}
+            }
+        };
+
+        let v_container = document.getElementById("video-container");
+        let rtc_media_player = document.createElement("video");
+        rtc_media_player.id = "rtc-media-player"
+        rtc_media_player.autoplay = "autoplay"
+        rtc_media_player.controls = "controls"
+        v_container.appendChild(rtc_media_player);
+
+        let sdk = new SrsRtcPublisherAsync(constraints);
+
+        // User should set the stream when publish is done, @see https://webrtc.org/getting-started/media-devices
+        // However SRS SDK provides a consist API like https://webrtc.org/getting-started/remote-streams
+        // Optional callback, SDK will add track to stream.
+        // sdk.ontrack = function (event) { console.log('Got track', event); sdk.stream.addTrack(event.track); };
+
+        // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/WebRTC_codecs#getting_the_supported_codecs
+        sdk.pc.onicegatheringstatechange = function (event) {
+            if (sdk.pc.iceGatheringState === "complete") {
+                console.log(sdk.pc.getSenders())
+            }
+        };
+
+        let url = {{ .webrtc_url }};
+        sdk.publish(url).then(function (session) {
+            console.log(session)
+            rtc_media_player.srcObject = sdk.stream
+        }).catch(function (reason) {
+            // Throw by sdk.
+            if (reason instanceof SrsError) {
+                if (reason.name === 'HttpsRequiredError') {
+                    alert(`WebRTC must be HTTPS or localhost：${reason.name} ${reason.message}`);
+                } else {
+                    alert(`${reason.name} ${reason.message}`);
+                }
+            }
+            // See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia#exceptions
+            if (reason instanceof DOMException) {
+                if (reason.name === 'NotFoundError') {
+                    alert(`can not find devices：getUserMedia ${reason.name} ${reason.message}`);
+                } else if (reason.name === 'NotAllowedError') {
+                    alert(`devices are not allow：getUserMedia ${reason.name} ${reason.message}`);
+                } else if (['AbortError', 'NotAllowedError', 'NotFoundError', 'NotReadableError', 'OverconstrainedError', 'SecurityError', 'TypeError'].includes(reason.name)) {
+                    alert(`getUserMedia ${reason.name} ${reason.message}`);
+                }
+            }
+
+            sdk.close();
+            rtc_media_player.hide();
+            console.error(reason);
+        });
+        removeButtons();
+    }
+</script>
+</html>

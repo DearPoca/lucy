@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Login</title>
+    <link rel="stylesheet" href="/assets/css/account.css">
+</head>
+<body>
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <center>
+            <button type="submit">login</button>
+            <button type="button" onclick='window.location.href="/register"'>register</button>
+        </center>
+    </form>
+</body>
+<script>
+    let loginForm = document.getElementById("login-form");
+    loginForm.addEventListener("submit", function (event) {
+        event.preventDefault(); 
+
+        const xhr = new XMLHttpRequest();
+        const url = "/api/auth";
+        const formData = new FormData(loginForm);
+
+        const params = new URLSearchParams(formData).toString();
+
+        xhr.open("GET", url + "?" + params);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                console.log(response)
+                if (response["code"] == 200) {
+                    window.location.href = "/"
+                } else {
+                    window.alert("login failed, err: " + response["msg"]);
+                }
+            }
+        };
+
+        xhr.send();
+    });
+</script>
+</html>

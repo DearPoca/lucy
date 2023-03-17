@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{ .username }}</title>
+    <div id="username" data-value={{ .username }}></div>
+    <script src="/assets/js/common_links.js"></script>
+    <link rel="stylesheet" href="/assets/css/table.css">
+</head>
+<body>
+    <table id="userinfo-list">
+        <thead>
+            <tr>
+                <th>attribute</th>
+                <th>value</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</body>
+<script>
+    function createTd(father, text) {
+        let td = document.createElement("td");
+        father.appendChild(td);
+        td.innerHTML = text;
+    }
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const resJson = JSON.parse(xhr.response)
+            console.log(resJson)
+            if (resJson["code"] == 200) {
+                let table = document.getElementById("userinfo-list");
+                Object.entries(resJson["data"]).forEach(([key, value]) => {
+                    console.log(key + ": " + value);
+                    let tr = document.createElement("tr");
+                    table.children[1].appendChild(tr);
+                    createTd(tr, key)
+                    createTd(tr, value)
+                });
+            }
+        }
+    }
+    let url = `/api/v1/userinfo`
+    xhr.open("get", url)
+    xhr.send();
+</script>
+</html>
+
