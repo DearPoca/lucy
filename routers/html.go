@@ -98,5 +98,8 @@ func myLive(c *gin.Context) {
 		"rtmp_url": fmt.Sprintf("rtmp://%s:%s%s",
 			setting.SrsSetting.Ip, setting.SrsSetting.RtmpPort,
 			roomPath),
+		"flv_url": fmt.Sprintf("http://%s:%s%s.flv",
+			setting.SrsSetting.Ip, setting.SrsSetting.NginxHttpPort,
+			roomPath),
 	})
 }

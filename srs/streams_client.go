@@ -74,6 +74,7 @@ func GetStreams() []Stream {
 		log.Printf("Get streams failed, err: %s", err.Error())
 		return nil
 	}
-	log.Printf("streamsInfo: %v", streamsInfo)
+	jStr, _ := json.Marshal(streamsInfo)
+	log.Printf("streamsInfo: %s", string(jStr))
 	return streamsInfo.Streams
 }

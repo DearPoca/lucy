@@ -5,8 +5,10 @@
     <title>my live</title>
     <div id="username" data-value={{ .username }}></div>
     <script src="/assets/js/common_links.js"></script>
-    <link rel="stylesheet" href="/assets/css/table.css">
     <script src="/assets/js/third_party/srs.sdk.js"></script>
+    <script src="/assets/js/third_party/flv.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/table.css">
+    <link rel="stylesheet" href="/assets/css/video-play-pages.css">
     <style>
         button {
             height: 40px;
@@ -17,9 +19,10 @@
 </head>
 <body>
     <br><br>
-    <center id="buttons-select">
-        <button onclick="startLiveWithCamera()">screen sharing</button>
-        <button onclick="startLiveWithCamera()">camera capture</button>
+    <center id="center-content">
+        <button onclick='startLiveWithWebrtc("screen")'>screen sharing</button>
+        <button onclick='startLiveWithWebrtc("camera")'>camera capture</button>
+        <button onclick='getStreamingAddr()'>push streaming addr</button>
     </center>
     <br><br>
     <center>
@@ -28,12 +31,68 @@
     </center>
 </body>
 <script>
-    function removeButtons() {
-        let buttons = document.getElementById("buttons-select");
-        buttons.remove()
+    function getStreamingAddr() {
+        let rtmpUrl = {{ .rtmp_url }};
+        let flvUrl = {{ .flv_url }};
+
+        let centerContent = document.getElementById("center-content");
+        while (centerContent.firstChild) {
+            centerContent.firstChild.remove()
+        }
+
+        let p = document.createElement("p");
+        p.textContent = `rtmp push streaming addr: `
+
+        let textArea = document.createElement("textarea");
+        centerContent.appendChild(textArea);
+        textArea.textContent = rtmpUrl
+        textArea.id = "rtmp-url"
+        textArea.cols = 60
+        textArea.readOnly = true
+
+        let buttonCopy = document.createElement("button");
+        buttonCopy.textContent = "copy"
+        buttonCopy.onclick = function () {
+            textArea.select();
+            document.execCommand("Copy");
+            alert("ok!");
+        }
+
+        let buttonWatch = document.createElement("button");
+        buttonWatch.textContent = "watch"
+        buttonWatch.onclick = function () {
+            if (flvjs.isSupported()) {
+                let old = document.getElementById("flv_player");
+                if (old) {
+                    old.remove()
+                }
+                let videoElement = document.createElement('video')
+                centerContent.appendChild(videoElement);
+                videoElement.id = "flv_player"
+                videoElement.autoplay = true
+                videoElement.controls = true
+                videoElement.preload = "auto"
+                videoElement.muted = true
+                let flvPlayer = flvjs.createPlayer({
+                    type: 'flv',
+                    url: flvUrl,
+                    isLive: true
+                })
+                flvPlayer.attachMediaElement(videoElement)
+                flvPlayer.load()
+                flvPlayer.play()
+            }
+        }
+
+        centerContent.appendChild(p);
+        centerContent.appendChild(textArea);
+        centerContent.appendChild(document.createElement("br"));
+        centerContent.appendChild(document.createElement("br"));
+        centerContent.appendChild(buttonCopy);
+        centerContent.appendChild(buttonWatch);
     }
 
-    function startLiveWithCamera() {
+    function startLiveWithWebrtc(videoSrc) {
         constraints = {
             audio: true,
             video: {
@@ -48,7 +107,7 @@
         rtc_media_player.controls = "controls"
         v_container.appendChild(rtc_media_player);
 
-        let sdk = new SrsRtcPublisherAsync(constraints);
+        let sdk = new SrsRtcPublisherAsync(constraints, videoSrc);
 
         // User should set the stream when publish is done, @see https://webrtc.org/getting-started/media-devices
         // However SRS SDK provides a consist API like https://webrtc.org/getting-started/remote-streams
@@ -90,7 +149,8 @@
             rtc_media_player.hide();
             console.error(reason);
         });
-        removeButtons();
+        let centerContent = document.getElementById("center-content");
+        centerContent.remove();
     }
 </script>
 </html>

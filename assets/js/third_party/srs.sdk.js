@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) 2013-2021 Winlin
 //
@@ -12,12 +11,13 @@ function SrsError(name, message) {
     this.message = message;
     this.stack = (new Error()).stack;
 }
+
 SrsError.prototype = Object.create(Error.prototype);
 SrsError.prototype.constructor = SrsError;
 
 // Depends on adapter-7.4.0.min.js from https://github.com/webrtc/adapter
 // Async-awat-prmise based SRS RTC Publisher.
-function SrsRtcPublisherAsync(constraints) {
+function SrsRtcPublisherAsync(constraints, videoSrc) {
     var self = {};
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
@@ -55,7 +55,12 @@ function SrsRtcPublisherAsync(constraints) {
         if (!navigator.mediaDevices && window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
             throw new SrsError('HttpsRequiredError', `Please use HTTPS or localhost to publish, read https://github.com/ossrs/srs/issues/2762#issuecomment-983147576`);
         }
-        var stream = await navigator.mediaDevices.getUserMedia(self.constraints);
+        var stream;
+        if (videoSrc && videoSrc.indexOf("screen") !== -1) {
+            stream = await navigator.mediaDevices.getDisplayMedia(self.constraints);
+        } else {
+            stream = await navigator.mediaDevices.getUserMedia(self.constraints);
+        }
 
         // @see https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream#Migrating_to_addTrack
         stream.getTracks().forEach(function (track) {
@@ -76,7 +81,7 @@ function SrsRtcPublisherAsync(constraints) {
             console.log("Generated offer: ", data);
 
             const xhr = new XMLHttpRequest();
-            xhr.onload = function() {
+            xhr.onload = function () {
                 if (xhr.readyState !== xhr.DONE) return;
                 if (xhr.status !== 200) return reject(xhr);
                 const data = JSON.parse(xhr.responseText);
@@ -142,7 +147,7 @@ function SrsRtcPublisherAsync(constraints) {
 
             return {
                 apiUrl: apiUrl, streamUrl: streamUrl, schema: schema, urlObject: urlObject, port: port,
-                tid: Number(parseInt(new Date().getTime()*Math.random()*100)).toString(16).slice(0, 7)
+                tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).slice(0, 7)
             };
         },
         parse: function (url) {
@@ -293,7 +298,7 @@ function SrsRtcPlayerAsync() {
     // or any other information, will pass-by in the query:
     //      webrtc://r.ossrs.net/live/livestream?vhost=xxx
     //      webrtc://r.ossrs.net/live/livestream?token=xxx
-    self.play = async function(url) {
+    self.play = async function (url) {
         var conf = self.__internal.prepareUrl(url);
         self.pc.addTransceiver("audio", {direction: "recvonly"});
         self.pc.addTransceiver("video", {direction: "recvonly"});
@@ -302,7 +307,7 @@ function SrsRtcPlayerAsync() {
 
         var offer = await self.pc.createOffer();
         await self.pc.setLocalDescription(offer);
-        var session = await new Promise(function(resolve, reject) {
+        var session = await new Promise(function (resolve, reject) {
             // @see https://github.com/rtcdn/rtcdn-draft
             var data = {
                 api: conf.apiUrl, tid: conf.tid, streamurl: conf.streamUrl,
@@ -311,7 +316,7 @@ function SrsRtcPlayerAsync() {
             console.log("Generated offer: ", data);
 
             const xhr = new XMLHttpRequest();
-            xhr.onload = function() {
+            xhr.onload = function () {
                 if (xhr.readyState !== xhr.DONE) return;
                 if (xhr.status !== 200) return reject(xhr);
                 const data = JSON.parse(xhr.responseText);
@@ -331,7 +336,7 @@ function SrsRtcPlayerAsync() {
     };
 
     // Close the player.
-    self.close = function() {
+    self.close = function () {
         self.pc && self.pc.close();
         self.pc = null;
     };
@@ -377,7 +382,7 @@ function SrsRtcPlayerAsync() {
 
             return {
                 apiUrl: apiUrl, streamUrl: streamUrl, schema: schema, urlObject: urlObject, port: port,
-                tid: Number(parseInt(new Date().getTime()*Math.random()*100)).toString(16).slice(0, 7)
+                tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).slice(0, 7)
             };
         },
         parse: function (url) {
@@ -496,7 +501,7 @@ function SrsRtcPlayerAsync() {
     self.stream = new MediaStream();
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
-    self.pc.ontrack = function(event) {
+    self.pc.ontrack = function (event) {
         if (self.ontrack) {
             self.ontrack(event);
         }
@@ -511,7 +516,7 @@ function SrsRtcFormatSenders(senders, kind) {
     var codecs = [];
     senders.forEach(function (sender) {
         var params = sender.getParameters();
-        params && params.codecs && params.codecs.forEach(function(c) {
+        params && params.codecs && params.codecs.forEach(function (c) {
             if (kind && sender.track.kind !== kind) {
                 return;
             }
