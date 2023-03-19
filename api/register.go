@@ -1,8 +1,9 @@
 package api
 
 import (
-	"log"
 	"net/http"
+
+	"lucy/pkg/log"
 
 	"lucy/pkg/respond"
 	"lucy/service/user_service"
@@ -17,17 +18,17 @@ func Register(c *gin.Context) {
 	telephone := c.Query("telephone")
 
 	if user_service.IsUserExisted(username) {
-		log.Printf("User [%s] register, but existed", username)
+		log.Info("User register, but existed", "username", username)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUserExisted))
 		return
 	}
 
 	err := user_service.CreateUser(username, password, email, telephone)
 	if err != nil {
-		log.Printf("User [%s] register failed, err: %s", username, err.Error())
+		log.Info("User register failed, err: %s", "username", username, "err", err.Error())
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeParamInvalid))
 		return
 	}
-	log.Printf("user [%s] register, email: %s, telephone number: %s", username, email, telephone)
+	log.Info("User register failed", "username", username, "email", email, "telephone", telephone)
 	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 }

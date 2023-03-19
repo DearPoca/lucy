@@ -1,8 +1,9 @@
 package api
 
 import (
-	"log"
 	"net/http"
+
+	"lucy/pkg/log"
 
 	"lucy/pkg/respond"
 	"lucy/service/user_service"
@@ -20,7 +21,7 @@ func Auth(c *gin.Context) {
 		hour := 30 * 24
 		token, err := utils.GenerateToken(username, password, hour)
 		if err != nil {
-			log.Printf("user [%s] GenerateToken failed: %s", username, err.Error())
+			log.Info("User GenerateToken failed", "username", username, "err", err.Error())
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 		} else {
 			c.SetCookie("token", token, hour*60*60,
@@ -28,7 +29,7 @@ func Auth(c *gin.Context) {
 			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))
 		}
 	} else {
-		log.Printf("user [%s] CheckAuth failed, no such user or password error", username)
+		log.Info("User CheckAuth failed, no such user or password error", "username", username)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUsernameOrPasswordError))
 	}
 }

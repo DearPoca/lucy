@@ -6,8 +6,7 @@ import (
 
 	"lucy/middleware/jwt"
 	"lucy/pkg/setting"
-	"lucy/srs"
-	"lucy/utils"
+	"lucy/service/media_service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +41,7 @@ func register(c *gin.Context) {
 }
 
 func playWebrtc(c *gin.Context) {
-	streams := srs.GetStreams()
+	streams := media_service.GetStreams()
 	roomId := c.Query("room_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
@@ -62,7 +61,7 @@ func playWebrtc(c *gin.Context) {
 }
 
 func playFlv(c *gin.Context) {
-	streams := srs.GetStreams()
+	streams := media_service.GetStreams()
 	roomId := c.Query("room_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
@@ -89,7 +88,7 @@ func myLive(c *gin.Context) {
 	if !exists {
 		username = "user"
 	}
-	roomPath := utils.CreateRoomPath(username.(string))
+	roomPath := media_service.GenerateRoomPath(username.(string))
 	c.HTML(http.StatusOK, "my_live.tmpl", gin.H{
 		"username": username,
 		"webrtc_url": fmt.Sprintf("webrtc://%s:%s%s",

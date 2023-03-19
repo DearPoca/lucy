@@ -1,21 +1,19 @@
 package main
 
 import (
-	"log"
 	"os"
+
+	"lucy/pkg/log"
 
 	"lucy/pkg/setting"
 	"lucy/routers"
-	_ "lucy/srs"
+	_ "lucy/service/media_service"
 )
 
 func main() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
-
 	err := os.MkdirAll(setting.AppSetting.AppRoot, os.ModePerm)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
-
 	routers.Run()
 }

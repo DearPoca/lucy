@@ -1,9 +1,10 @@
 package jwt
 
 import (
-	"log"
 	"net/http"
 	"time"
+
+	"lucy/pkg/log"
 
 	"lucy/utils"
 
@@ -20,14 +21,14 @@ func JWT(c *gin.Context) {
 	}
 	token, err := c.Cookie("token")
 	if token == "" || err != nil {
-		log.Printf("no cookie, redirect, token: %s, err: %s", token, err.Error())
+		log.Info("no cookie, redirect", "token", token, "err", err.Error())
 		redirect()
 		return
 	}
 
 	claims, err := utils.ParseToken(token)
 	if err != nil {
-		log.Printf("token parse failed, err: %s", err.Error())
+		log.Info("token parse failed", "err", err.Error())
 		redirect()
 		return
 	} else if time.Now().Unix() > claims.ExpiresAt {

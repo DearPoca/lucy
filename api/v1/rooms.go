@@ -5,8 +5,7 @@ import (
 	"net/http"
 
 	"lucy/pkg/respond"
-	"lucy/srs"
-	"lucy/utils"
+	"lucy/service/media_service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,15 +18,15 @@ type room struct {
 }
 
 func GetRooms(c *gin.Context) {
-	streams := srs.GetStreams()
+	streams := media_service.GetStreams()
 	rooms := make([]room, 0)
 	for i, _ := range streams {
-		if !utils.VerifyPath(streams[i].Url) {
+		if !media_service.VerifyPath(streams[i].Url) {
 			continue
 		}
 		r := room{
 			Id:         streams[i].Id,
-			Owner:      utils.ParseUserFromRoomPath(streams[i].Url),
+			Owner:      media_service.ParseUserFromRoomPath(streams[i].Url),
 			WebrtcLink: fmt.Sprintf("/play/webrtc?room_id=%s", streams[i].Id),
 			FlvLink:    fmt.Sprintf("/play/flv?room_id=%s", streams[i].Id),
 		}

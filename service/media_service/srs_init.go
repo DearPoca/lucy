@@ -1,13 +1,14 @@
-package srs
+package media_service
 
 import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"sync"
+
+	"lucy/pkg/log"
 
 	"lucy/pkg/setting"
 )
@@ -18,7 +19,7 @@ func monitorLog(stdout *bufio.Reader, stderr *bufio.Reader) {
 	logFilePath := "./srs/srs.log"
 	logFile, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
-		log.Printf("srs log file open failed：%s", err)
+		log.Info("Srs log file open failed", "err", err)
 		return
 	}
 	defer logFile.Close()
@@ -67,19 +68,19 @@ func init() {
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Srs stdout pipe open failed", "err", err)
 	}
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Srs stderr pipe open failed", "err", err)
 	}
 
 	stdoutReader := bufio.NewReader(stdout)
 	stderrReader := bufio.NewReader(stderr)
 
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+	if err = cmd.Start(); err != nil {
+		log.Fatal("Srs start failed", "err", err)
 	}
 
 	go monitorLog(stdoutReader, stderrReader)

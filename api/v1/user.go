@@ -3,25 +3,27 @@ package v1
 import (
 	"net/http"
 
+	"lucy/pkg/log"
+
 	"lucy/middleware/jwt"
 	"lucy/pkg/respond"
+	"lucy/service/user_service"
 
 	"github.com/gin-gonic/gin"
 )
 
-type user struct {
-	Name string `json:"name"`
-}
-
 func GetUserInfo(c *gin.Context) {
-	tmp, ok := c.Get(jwt.KeyOfUsername)
+	username, ok := c.Get(jwt.KeyOfUsername)
 	if !ok {
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
-	username := tmp.(string)
+	u, err := user_service.GetUserInfo(username.(string))
 
-	u := user{username}
-
-	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, u))
+	if err != nil {
+		log.Info("Get user info failed", "err", err.Error())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeGetUserInfoFailed))
+	} else {
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, u))
+	}
 }

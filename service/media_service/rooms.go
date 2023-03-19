@@ -1,14 +1,20 @@
-package utils
+package media_service
 
 import (
 	"fmt"
+
+	"lucy/utils"
 )
 
 const rndTokenLength = 16
-const prefix = "/live"
+const prefix = "/lucy"
 
-func CreateRoomPath(username string) string {
-	return fmt.Sprintf("%s/%s/%s", prefix, username, RandStr(rndTokenLength))
+func GetRooms() {
+
+}
+
+func GenerateRoomPath(username string) string {
+	return fmt.Sprintf("%s/%s/%s", prefix, username, utils.RandStr(rndTokenLength))
 }
 
 func ParseUserFromRoomPath(path string) string {

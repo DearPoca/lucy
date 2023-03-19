@@ -1,11 +1,12 @@
-package srs
+package media_service
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+
+	"lucy/pkg/log"
 )
 
 type Kbps struct {
@@ -51,7 +52,7 @@ type Stream struct {
 	Audio     *Audio   `json:"audio"`
 }
 
-type StreamsInfo struct {
+type StreamsResponse struct {
 	Code    int      `json:"code"`
 	Server  string   `json:"server"`
 	Service string   `json:"service"`
@@ -63,18 +64,17 @@ func GetStreams() []Stream {
 	var myClient = &http.Client{}
 	resp, err := myClient.Get(fmt.Sprintf("%s/api/v1/streams/", httpApiPath))
 	if err != nil {
-		log.Printf("Get streams failed, err: %s", err.Error())
+		log.Warn("Get streams failed", "err", err.Error())
 		return nil
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
-	var streamsInfo StreamsInfo
-	err = json.Unmarshal(body, &streamsInfo)
+	var streamsResp StreamsResponse
+	err = json.Unmarshal(body, &streamsResp)
 	if err != nil {
-		log.Printf("Get streams failed, err: %s", err.Error())
+		log.Warn("Get streams failed", "err", err.Error())
 		return nil
 	}
-	jStr, _ := json.Marshal(streamsInfo)
-	log.Printf("streamsInfo: %s", string(jStr))
-	return streamsInfo.Streams
+	log.Info("Get response", "streamsResp", streamsResp)
+	return streamsResp.Streams
 }

@@ -16,6 +16,7 @@ type App struct {
 	Port      int    `ini:"port"`
 	JwtSecret string `ini:"jwt_secret"`
 	JwtIssuer string `ini:"jwt_issuer"`
+	LogLevel  string `ini:"log_level"`
 }
 
 type Mysql struct {

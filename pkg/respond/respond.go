@@ -14,6 +14,7 @@ const (
 	CodeAuthCheckTokenFail      = 404
 	CodeAuthTimeout             = 405
 	CodeBucketNameInvalidError  = 406
+	CodeGetUserInfoFailed       = 407
 	CodeUnknownError            = 400
 )
 
@@ -25,6 +26,7 @@ var codeToMsg = map[int]string{
 	CodeAuthCheckTokenFail:      "auth check token fail",
 	CodeAuthTimeout:             "auth timeout",
 	CodeBucketNameInvalidError:  "bucket name invalid",
+	CodeGetUserInfoFailed:       "get user info failed",
 	CodeUnknownError:            "unknown error",
 }
 
