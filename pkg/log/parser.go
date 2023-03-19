@@ -52,14 +52,7 @@ func serialize(callDepth int, level int, msg string, v ...any) string {
 		buf = append(buf, ' ')
 	}
 	{
-		short := file
-		for i := len(file) - 1; i > 0; i-- {
-			if file[i] == '/' {
-				short = file[i+1:]
-				break
-			}
-		}
-		buf = append(buf, short...)
+		buf = append(buf, file...)
 		buf = append(buf, ':')
 		iToA(&buf, line, -1)
 		buf = append(buf, ": "...)

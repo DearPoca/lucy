@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"lucy/middleware/jwt"
+	"lucy/pkg/log"
+	"lucy/pkg/respond"
 	"lucy/pkg/setting"
 	"lucy/service/media_service"
 
@@ -42,13 +44,13 @@ func register(c *gin.Context) {
 
 func playWebrtc(c *gin.Context) {
 	streams := media_service.GetStreams()
-	roomId := c.Query("room_id")
+	liveId := c.Query("live_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
 		username = "user"
 	}
 	for i, _ := range streams {
-		if streams[i].Id == roomId {
+		if streams[i].Id == liveId {
 			url := fmt.Sprintf("webrtc://%s%s", setting.SrsSetting.Ip, streams[i].Url)
 			c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
 				"username":   username,
@@ -57,18 +59,18 @@ func playWebrtc(c *gin.Context) {
 			return
 		}
 	}
-	c.String(http.StatusOK, "room no found!")
+	c.String(http.StatusOK, "live no found!")
 }
 
 func playFlv(c *gin.Context) {
 	streams := media_service.GetStreams()
-	roomId := c.Query("room_id")
+	liveId := c.Query("live_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
 		username = "user"
 	}
 	for i, _ := range streams {
-		if streams[i].Id == roomId {
+		if streams[i].Id == liveId {
 			url := fmt.Sprintf("http://%s:%s%s.flv",
 				setting.SrsSetting.Ip,
 				setting.SrsSetting.NginxHttpPort,
@@ -80,7 +82,7 @@ func playFlv(c *gin.Context) {
 			return
 		}
 	}
-	c.String(http.StatusOK, "room no found!")
+	c.String(http.StatusOK, "live no found!")
 }
 
 func myLive(c *gin.Context) {
@@ -88,17 +90,23 @@ func myLive(c *gin.Context) {
 	if !exists {
 		username = "user"
 	}
-	roomPath := media_service.GenerateRoomPath(username.(string))
+	liveName, err := media_service.GenerateLive(username.(string))
+	if err != nil {
+		log.Warn("Generate live failed", err, err.Error())
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
+		c.Abort()
+		return
+	}
 	c.HTML(http.StatusOK, "my_live.tmpl", gin.H{
 		"username": username,
 		"webrtc_url": fmt.Sprintf("webrtc://%s:%s%s",
 			setting.SrsSetting.Ip, setting.SrsSetting.HttpApiPort,
-			roomPath),
+			liveName),
 		"rtmp_url": fmt.Sprintf("rtmp://%s:%s%s",
 			setting.SrsSetting.Ip, setting.SrsSetting.RtmpPort,
-			roomPath),
+			liveName),
 		"flv_url": fmt.Sprintf("http://%s:%s%s.flv",
 			setting.SrsSetting.Ip, setting.SrsSetting.NginxHttpPort,
-			roomPath),
+			liveName),
 	})
 }

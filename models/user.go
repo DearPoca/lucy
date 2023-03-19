@@ -10,5 +10,5 @@ type User struct {
 	Salt                 string `gorm:"salt"`
 	AuthenticationString string `gorm:"authentication_string"`
 	Email                string `gorm:"email"`
-	Telephone            string `gorm:"email"`
+	Telephone            string `gorm:"telephone"`
 }

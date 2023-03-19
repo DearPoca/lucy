@@ -43,7 +43,7 @@ func init() {
 	apiV1 := r.Group("/api/v1")
 	apiV1.Use(jwt.JWT)
 	{
-		apiV1.GET("/get_rooms", v1.GetRooms)
+		apiV1.GET("/get_lives", v1.GetLives)
 		apiV1.GET("/userinfo", v1.GetUserInfo)
 		apiV1.POST("/record", v1.Record)
 	}

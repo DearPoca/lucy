@@ -1,5 +1,5 @@
 let common_links = [
-    {title: "live rooms", url: "/"},
+    {title: "lives", url: "/"},
     {title: "my live", url: "/my_live"},
 ];
 

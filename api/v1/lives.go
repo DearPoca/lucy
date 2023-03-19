@@ -12,16 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetRooms(c *gin.Context) {
-	rooms := media_service.GetRooms()
-	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, rooms))
+func GetLives(c *gin.Context) {
+	lives := media_service.GetLives()
+	c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess, lives))
 }
 
 func Record(c *gin.Context) {
 	buf := make([]byte, 1024)
 	n, err := c.Request.Body.Read(buf)
 	request := struct {
-		RtmpUrl string `json:"rtmp_url"`
+		StreamUrl string `json:"stream_url"`
 	}{}
 	err = json.Unmarshal(buf[:n], &request)
 	if err != nil {
@@ -35,7 +35,7 @@ func Record(c *gin.Context) {
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}
-	if err = media_service.Record(request.RtmpUrl, username.(string)); err != nil {
+	if err = media_service.Record(request.StreamUrl, username.(string)); err != nil {
 		log.Warn("Record failed", "body", string(buf), "username", username, "err", err.Error())
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 	} else {

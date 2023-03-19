@@ -36,6 +36,7 @@ func init() {
 	sqlDB.SetConnMaxLifetime(-1)
 
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Live{})
 }
 
 func Db() *gorm.DB {

@@ -57,31 +57,30 @@ func init() {
 		setting.SrsSetting.HttpApiPort,
 	)
 	if !setting.SrsSetting.Run {
-		return
+		cmd := exec.Command("bash", "./srs/run.sh",
+			setting.SrsSetting.RtmpPort,
+			setting.SrsSetting.NginxHttpPort,
+			setting.SrsSetting.NginxHttpsPort,
+			setting.SrsSetting.HttpApiPort,
+			setting.SrsSetting.RtcServerPort)
+
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			log.Fatal("Srs stdout pipe open failed", "err", err)
+		}
+
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			log.Fatal("Srs stderr pipe open failed", "err", err)
+		}
+
+		stdoutReader := bufio.NewReader(stdout)
+		stderrReader := bufio.NewReader(stderr)
+
+		if err = cmd.Start(); err != nil {
+			log.Fatal("Srs start failed", "err", err)
+		}
+
+		go monitorLog(stdoutReader, stderrReader)
 	}
-	cmd := exec.Command("bash", "./srs/run.sh",
-		setting.SrsSetting.RtmpPort,
-		setting.SrsSetting.NginxHttpPort,
-		setting.SrsSetting.NginxHttpsPort,
-		setting.SrsSetting.HttpApiPort,
-		setting.SrsSetting.RtcServerPort)
-
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatal("Srs stdout pipe open failed", "err", err)
-	}
-
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		log.Fatal("Srs stderr pipe open failed", "err", err)
-	}
-
-	stdoutReader := bufio.NewReader(stdout)
-	stderrReader := bufio.NewReader(stderr)
-
-	if err = cmd.Start(); err != nil {
-		log.Fatal("Srs start failed", "err", err)
-	}
-
-	go monitorLog(stdoutReader, stderrReader)
 }
