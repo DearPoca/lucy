@@ -11,6 +11,8 @@ function addLinks() {
     container.style.display = 'flex';
     container.style.flexDirection = 'row';
     container.style.gap = '10px';
+    container.style.zIndex = '9999';
+    container.style.background = '#f5f5f5';
 
     for (let i = 0; i < common_links.length; i++) {
         let link = document.createElement('a');
@@ -47,6 +49,8 @@ function addReturn() {
     container.style.display = 'flex';
     container.style.flexDirection = 'row';
     container.style.gap = '10px';
+    container.style.zIndex = '9999';
+    container.style.background = '#f5f5f5';
 
     let backLink = document.createElement('a');
     backLink.href = 'javascript:history.back()';

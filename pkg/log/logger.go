@@ -20,13 +20,13 @@ const (
 )
 
 var logLevelStr = []string{
-	"Trace",
-	"Debug",
-	"Info",
-	"Warn",
-	"Error",
-	"Fatal",
-	"Panic",
+	"TRACE",
+	"DEBUG",
+	"INFO",
+	"WARN",
+	"ERROR",
+	"FATAL",
+	"PANIC",
 }
 
 var Logger *log.Logger

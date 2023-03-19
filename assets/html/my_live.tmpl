@@ -9,13 +9,7 @@
     <script src="/assets/js/third_party/flv.min.js"></script>
     <link rel="stylesheet" href="/assets/css/table.css">
     <link rel="stylesheet" href="/assets/css/video-play-pages.css">
-    <style>
-        button {
-            height: 40px;
-            padding: 10px 30px 10px 30px;
-            font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/button.css">
 </head>
 <body>
     <br><br>
@@ -24,13 +18,25 @@
         <button onclick='startLiveWithWebrtc("camera")'>camera capture</button>
         <button onclick='getStreamingAddr()'>streaming addr</button>
     </center>
-    <br><br>
-    <center>
-        <div id="video-container">
-        </div>
-    </center>
 </body>
 <script>
+    function CreateVideoElement(father, id){
+        let v_container = document.createElement("div");
+        v_container.id = "video-container"
+        v_container.classList.add('v-container');
+        father.appendChild(v_container);
+
+        let videoElement = document.createElement('video')
+        v_container.appendChild(videoElement);
+        videoElement.id = id
+        videoElement.autoplay = true
+        videoElement.controls = true
+        videoElement.preload = "auto"
+        videoElement.muted = true
+
+        return videoElement
+    }
+
     function getStreamingAddr() {
         let rtmpUrl = {{ .rtmp_url }};
         let flvUrl = {{ .flv_url }};
@@ -44,13 +50,13 @@
         p.textContent = `streaming addr: `
 
         let textArea = document.createElement("textarea");
-        centerContent.appendChild(textArea);
         textArea.textContent = rtmpUrl
         textArea.id = "rtmp-url"
         textArea.cols = 60
         textArea.readOnly = true
 
         let buttonCopy = document.createElement("button");
+        buttonCopy.type = "button"
         buttonCopy.textContent = "copy"
         buttonCopy.onclick = function () {
             textArea.select();
@@ -59,20 +65,17 @@
         }
 
         let buttonWatch = document.createElement("button");
+        buttonWatch.type = "button"
         buttonWatch.textContent = "watch"
         buttonWatch.onclick = function () {
             if (flvjs.isSupported()) {
-                let old = document.getElementById("flv_player");
-                if (old) {
-                    old.remove()
+                let video_id = "flv_player"
+                let old_video = document.getElementById(video_id);
+                if (old_video) {
+                    old_video.remove()
                 }
-                let videoElement = document.createElement('video')
-                centerContent.appendChild(videoElement);
-                videoElement.id = "flv_player"
-                videoElement.autoplay = true
-                videoElement.controls = true
-                videoElement.preload = "auto"
-                videoElement.muted = true
+                let videoElement = CreateVideoElement(centerContent, video_id)
+
                 let flvPlayer = flvjs.createPlayer({
                     type: 'flv',
                     url: flvUrl,
@@ -100,12 +103,17 @@
             }
         };
 
-        let v_container = document.getElementById("video-container");
-        let rtc_media_player = document.createElement("video");
-        rtc_media_player.id = "rtc-media-player"
-        rtc_media_player.autoplay = "autoplay"
-        rtc_media_player.controls = "controls"
-        v_container.appendChild(rtc_media_player);
+        let centerContent = document.getElementById("center-content");
+        while (centerContent.firstChild) {
+            centerContent.firstChild.remove()
+        }
+
+        let video_id = "rtc-media-player";
+        let old_video = document.getElementById(video_id);
+        if (old_video) {
+            old_video.remove()
+        }
+        let videoElement = CreateVideoElement(centerContent, video_id)
 
         let sdk = new SrsRtcPublisherAsync(constraints, videoSrc);
 
@@ -124,7 +132,7 @@
         let url = {{ .webrtc_url }};
         sdk.publish(url).then(function (session) {
             console.log(session)
-            rtc_media_player.srcObject = sdk.stream
+            videoElement.srcObject = sdk.stream
         }).catch(function (reason) {
             // Throw by sdk.
             if (reason instanceof SrsError) {
@@ -146,11 +154,9 @@
             }
 
             sdk.close();
-            rtc_media_player.hide();
+            videoElement.hide();
             console.error(reason);
         });
-        let centerContent = document.getElementById("center-content");
-        centerContent.remove();
     }
 </script>
 </html>
