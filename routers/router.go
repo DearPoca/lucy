@@ -45,6 +45,7 @@ func init() {
 	{
 		apiV1.GET("/get_rooms", v1.GetRooms)
 		apiV1.GET("/userinfo", v1.GetUserInfo)
+		apiV1.POST("/record", v1.Record)
 	}
 }
 

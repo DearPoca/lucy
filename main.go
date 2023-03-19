@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.SetLevelStr(setting.AppSetting.LogLevel)
 	err := os.MkdirAll(setting.AppSetting.AppRoot, os.ModePerm)
 	if err != nil {
 		log.Fatal(err.Error())

@@ -20,11 +20,41 @@
     </center>
 </body>
 <script>
+    function CreateLiveRecordButton(father, rtmpUrl) {
+        let buttonRecord = document.createElement("button");
+        father.appendChild(buttonRecord);
+        buttonRecord.type = "button"
+        buttonRecord.textContent = "record"
+        buttonRecord.onclick = function () {
+            const xhr = new XMLHttpRequest();
+            const path = "/api/v1/record";
+            const params = {
+                "rtmp_url": rtmpUrl
+            }
+            xhr.open("POST", path);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log(response)
+                    if (response["code"] == 200) {
+                        window.alert("record start");
+                    } else {
+                        window.alert("record failed, err: " + response["msg"]);
+                    }
+                }
+            };
+
+            xhr.send(JSON.stringify(params));
+        }
+        return buttonRecord;
+    }
+
     function CreateVideoElement(father, id){
         let v_container = document.createElement("div");
+        father.appendChild(v_container);
         v_container.id = "video-container"
         v_container.classList.add('v-container');
-        father.appendChild(v_container);
 
         let videoElement = document.createElement('video')
         v_container.appendChild(videoElement);
@@ -74,16 +104,16 @@
                 if (old_video) {
                     old_video.remove()
                 }
-                let videoElement = CreateVideoElement(centerContent, video_id)
+                let videoElement = CreateVideoElement(centerContent, video_id);
 
                 let flvPlayer = flvjs.createPlayer({
                     type: 'flv',
                     url: flvUrl,
                     isLive: true
                 })
-                flvPlayer.attachMediaElement(videoElement)
-                flvPlayer.load()
-                flvPlayer.play()
+                flvPlayer.attachMediaElement(videoElement);
+                flvPlayer.load();
+                flvPlayer.play();
             }
         }
 
@@ -93,9 +123,13 @@
         centerContent.appendChild(document.createElement("br"));
         centerContent.appendChild(buttonCopy);
         centerContent.appendChild(buttonWatch);
+        let recordButton = CreateLiveRecordButton(centerContent, rtmpUrl);
     }
 
     function startLiveWithWebrtc(videoSrc) {
+        let webrtcUrl = {{ .webrtc_url }};
+        let rtmpUrl = {{ .rtmp_url }};
+
         constraints = {
             audio: true,
             video: {
@@ -113,28 +147,21 @@
         if (old_video) {
             old_video.remove()
         }
-        let videoElement = CreateVideoElement(centerContent, video_id)
+        let recordButton = CreateLiveRecordButton(centerContent, rtmpUrl);
+        let videoElement = CreateVideoElement(centerContent, video_id);
 
         let sdk = new SrsRtcPublisherAsync(constraints, videoSrc);
 
-        // User should set the stream when publish is done, @see https://webrtc.org/getting-started/media-devices
-        // However SRS SDK provides a consist API like https://webrtc.org/getting-started/remote-streams
-        // Optional callback, SDK will add track to stream.
-        // sdk.ontrack = function (event) { console.log('Got track', event); sdk.stream.addTrack(event.track); };
-
-        // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/WebRTC_codecs#getting_the_supported_codecs
         sdk.pc.onicegatheringstatechange = function (event) {
             if (sdk.pc.iceGatheringState === "complete") {
                 console.log(sdk.pc.getSenders())
             }
         };
 
-        let url = {{ .webrtc_url }};
-        sdk.publish(url).then(function (session) {
+        sdk.publish(webrtcUrl).then(function (session) {
             console.log(session)
             videoElement.srcObject = sdk.stream
         }).catch(function (reason) {
-            // Throw by sdk.
             if (reason instanceof SrsError) {
                 if (reason.name === 'HttpsRequiredError') {
                     alert(`WebRTC must be HTTPS or localhost：${reason.name} ${reason.message}`);
@@ -142,7 +169,6 @@
                     alert(`${reason.name} ${reason.message}`);
                 }
             }
-            // See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia#exceptions
             if (reason instanceof DOMException) {
                 if (reason.name === 'NotFoundError') {
                     alert(`can not find devices：getUserMedia ${reason.name} ${reason.message}`);

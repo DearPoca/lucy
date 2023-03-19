@@ -13,8 +13,8 @@ import (
 )
 
 func GetUserInfo(c *gin.Context) {
-	username, ok := c.Get(jwt.KeyOfUsername)
-	if !ok {
+	username, exists := c.Get(jwt.KeyOfUsername)
+	if !exists {
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		return
 	}

@@ -34,6 +34,10 @@ func GetRooms() []Room {
 	return rooms
 }
 
+func Record(rtmpUrl string, username string) error {
+	return nil
+}
+
 func GenerateRoomPath(username string) string {
 	return fmt.Sprintf("%s/%s/%s", prefix, username, utils.RandStr(rndTokenLength))
 }

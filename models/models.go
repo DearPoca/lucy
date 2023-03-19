@@ -9,21 +9,19 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
 
 func init() {
 	var err error
-	loggers := logger.New(log.Logger, logger.Config{})
 	url := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		setting.MysqlSetting.User,
 		setting.MysqlSetting.Password,
 		setting.MysqlSetting.Host,
 		setting.MysqlSetting.Database)
 
-	db, err = gorm.Open(mysql.Open(url), &gorm.Config{Logger: loggers})
+	db, err = gorm.Open(mysql.Open(url), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal("gorm.Open failed", "err", err)
