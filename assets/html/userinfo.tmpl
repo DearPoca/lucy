@@ -23,7 +23,7 @@
         <caption align="top">live-records-list</caption>
         <thead>
             <tr>
-                <th>live name</th>
+                <th>live title</th>
                 <th>live start time</th>
                 <th>record</th>
             </tr>
@@ -78,18 +78,18 @@
                 for (let i = 0; i < resJson["data"].length; i++) {
                     let tr = document.createElement("tr");
                     table.children[2].appendChild(tr);
-                    createTd(tr, resJson["data"][i]["name"])
+                    createTd(tr, resJson["data"][i]["title"])
                     createTd(tr, resJson["data"][i]["start_time"])
                     if ("record_url" in resJson["data"][i]) {
                         createLink(tr, resJson["data"][i]["record_url"])
                     } else {
-                        createTd(tr, "")
+                        createTd(tr, "record not found")
                     }
                 }
             }
         }
     }
-    xhr_record.open("get", "/api/v1/list_record")
+    xhr_record.open("get", "/api/v1/list_record?username={{ .username }}")
     xhr_record.send();
 </script>
 </html>

@@ -1,13 +1,10 @@
 package routers
 
 import (
-	"fmt"
 	"net/http"
 
 	"lucy/middleware/jwt"
-	"lucy/pkg/log"
 	"lucy/pkg/respond"
-	"lucy/pkg/setting"
 	"lucy/service/media_service"
 
 	"github.com/gin-gonic/gin"
@@ -43,46 +40,38 @@ func register(c *gin.Context) {
 }
 
 func playWebrtc(c *gin.Context) {
-	streams := media_service.GetStreams()
 	liveId := c.Query("live_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
 		username = "user"
 	}
-	for i, _ := range streams {
-		if streams[i].Id == liveId {
-			url := fmt.Sprintf("webrtc://%s%s", setting.SrsSetting.Ip, streams[i].Url)
-			c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
-				"username":   username,
-				"webrtc_url": url,
-			})
-			return
-		}
+	live, err := media_service.GetLiveById(liveId)
+	if err != nil {
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeLiveNotFound))
+		return
 	}
-	c.String(http.StatusOK, "live no found!")
+	c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
+		"username":   username,
+		"webrtc_url": live.WebrtcUrl,
+	})
 }
 
 func playFlv(c *gin.Context) {
-	streams := media_service.GetStreams()
 	liveId := c.Query("live_id")
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
 		username = "user"
 	}
-	for i, _ := range streams {
-		if streams[i].Id == liveId {
-			url := fmt.Sprintf("http://%s:%s%s.flv",
-				setting.SrsSetting.Ip,
-				setting.SrsSetting.NginxHttpPort,
-				streams[i].Url)
-			c.HTML(http.StatusOK, "play_flv.tmpl", gin.H{
-				"username": username,
-				"flv_url":  url,
-			})
-			return
-		}
+	live, err := media_service.GetLiveById(liveId)
+	if err != nil {
+		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeLiveNotFound))
+		return
 	}
-	c.String(http.StatusOK, "live no found!")
+	c.HTML(http.StatusOK, "play_flv.tmpl", gin.H{
+		"username": username,
+		"flv_url":  live.FlvUrl,
+	})
+	return
 }
 
 func newLive(c *gin.Context) {
@@ -90,18 +79,8 @@ func newLive(c *gin.Context) {
 	if !exists {
 		username = "user"
 	}
-	live, err := media_service.GenerateLive(username.(string))
-	if err != nil {
-		log.Warn("Generate live failed", err, err.Error())
-		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
-		c.Abort()
-		return
-	}
+
 	c.HTML(http.StatusOK, "new_live.tmpl", gin.H{
-		"username":   username,
-		"webrtc_url": live.WebrtcUrl,
-		"rtmp_url":   live.RtmpUrl,
-		"flv_url":    live.FlvUrl,
-		"live_name":  live.Name,
+		"username": username,
 	})
 }

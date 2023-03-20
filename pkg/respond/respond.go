@@ -13,7 +13,9 @@ const (
 	CodeUsernameOrPasswordError = 403
 	CodeAuthCheckTokenFail      = 404
 	CodeAuthTimeout             = 405
-	CodeGetUserInfoFailed       = 407
+	CodeGetUserInfoFailed       = 406
+	CodeLiveNotFound            = 407
+	CodeLiveTitleEmpty          = 408
 	CodeUnknownError            = 400
 )
 
@@ -24,7 +26,9 @@ var codeToMsg = map[int]string{
 	CodeUsernameOrPasswordError: "username or password error",
 	CodeAuthCheckTokenFail:      "auth check token fail",
 	CodeAuthTimeout:             "auth timeout",
+	CodeLiveNotFound:            "live not found",
 	CodeGetUserInfoFailed:       "get user info failed",
+	CodeLiveTitleEmpty:          "live title empty",
 	CodeUnknownError:            "unknown error",
 }
 

@@ -21,6 +21,7 @@ const available = "available"
 type Live struct {
 	Id        string `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
+	Title     string `json:"title,omitempty"`
 	Owner     string `json:"owner,omitempty"`
 	WebrtcUrl string `json:"webrtc_link,omitempty"`
 	RtmpUrl   string `json:"rtmp_link,omitempty"`
@@ -45,6 +46,7 @@ func GetLiveByStream(stream *Stream) (*Live, error) {
 		ret := Live{
 			Id:        stream.Id,
 			Name:      l.Name,
+			Title:     l.Title,
 			Owner:     l.Owner,
 			WebrtcUrl: l.WebrtcUrl,
 			RtmpUrl:   l.RtmpUrl,
@@ -73,6 +75,34 @@ func GetActiveLives() []Live {
 	return lives
 }
 
+func GetLiveById(liveId string) (*Live, error) {
+	streams := GetStreams()
+	for i, _ := range streams {
+		if streams[i].Id == liveId {
+			var l models.Live
+			err := models.Db().Where(models.Live{Name: streams[i].Url}).First(&l).Error
+			if err != nil {
+				return nil, errors.New("live not found")
+			}
+			ret := Live{
+				Id:        liveId,
+				Name:      l.Name,
+				Title:     l.Title,
+				Owner:     l.Owner,
+				WebrtcUrl: l.WebrtcUrl,
+				RtmpUrl:   l.RtmpUrl,
+				FlvUrl:    l.HttpFlvUrl,
+				StartTime: l.CreatedAt.String(),
+			}
+			if l.RecordStatus == available {
+				ret.RecordUrl = l.RecordPath
+			}
+			return &ret, nil
+		}
+	}
+	return nil, errors.New("live not found")
+}
+
 func GetLivesByUser(username string) ([]Live, error) {
 	var ls []models.Live
 	err := models.Db().Where(models.Live{Owner: username}).Find(&ls).Error
@@ -84,6 +114,7 @@ func GetLivesByUser(username string) ([]Live, error) {
 	for i, _ := range ls {
 		live := Live{
 			Name:      ls[i].Name,
+			Title:     ls[i].Title,
 			Owner:     ls[i].Owner,
 			WebrtcUrl: ls[i].WebrtcUrl,
 			RtmpUrl:   ls[i].RtmpUrl,
@@ -126,7 +157,7 @@ func LiveRecord(liveName string, username string) error {
 	return nil
 }
 
-func GenerateLive(username string) (*Live, error) {
+func GenerateLive(username string, title string) (*Live, error) {
 	lToA := func(buf *[]byte, i int64, wid int) {
 		var b [liveTokenLength + 1]byte
 		bp := len(b) - 1
@@ -148,6 +179,7 @@ func GenerateLive(username string) (*Live, error) {
 	livaName := fmt.Sprintf("/%s/%s/%s", app, username, string(buf))
 	l := &models.Live{
 		Name:  livaName,
+		Title: title,
 		Owner: username,
 		WebrtcUrl: fmt.Sprintf("webrtc://%s:%s%s",
 			setting.SrsSetting.Ip, setting.SrsSetting.HttpApiPort,
@@ -162,8 +194,9 @@ func GenerateLive(username string) (*Live, error) {
 		RecordPath:   "",
 	}
 	ret := &Live{
-		Owner:     username,
 		Name:      livaName,
+		Owner:     username,
+		Title:     title,
 		WebrtcUrl: l.WebrtcUrl,
 		RtmpUrl:   l.RtmpUrl,
 		FlvUrl:    l.HttpFlvUrl,

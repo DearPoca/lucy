@@ -13,15 +13,50 @@
 </head>
 <body>
     <br><br>
-    <center>
-        <button type="button" onclick='startLiveWithWebrtc("screen")'>screen sharing</button>
-        <button type="button" onclick='startLiveWithWebrtc("camera")'>camera capture</button>
-        <button type="button" onclick='getStreamingAddr()'>streaming addr</button>
-        <div id="extra-content">
-        </div>
+    <center id="center-content">
+        <form id="new-live-form">
+            <label for="liveTitle">Live Title:</label>
+            <input type="text" id="liveTitle" name="liveTitle" required><br><br>
+            <button type="button" onclick='StartLiveWithWebrtc("screen")'>screen sharing</button>
+            <button type="button" onclick='StartLiveWithWebrtc("camera")'>camera capture</button>
+            <button type="button" onclick='GetStreamingAddr()'>streaming addr</button>
+        </form>
     </center>
 </body>
 <script>
+    var liveName;
+    var rtmpUrl;
+    var flvUrl;
+    var webrtcUrl;
+    function NewLive() {
+        let newLiveForm = document.getElementById("new-live-form");
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(newLiveForm);
+        const url = "api/v1/new_live"
+
+        const params = new URLSearchParams(formData).toString();
+
+        xhr.open("GET", url + "?" + params, false);
+
+        xhr.send();
+
+        if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            console.log(response)
+            if (response["code"] == 200) {
+                liveName = response["data"]["name"];
+                rtmpUrl = response["data"]["rtmp_link"];
+                flvUrl = response["data"]["flv_link"];
+                webrtcUrl = response["data"]["webrtc_link"];
+                newLiveForm.remove();
+                return true;
+            } else {
+                window.alert("new live failed, err: " + response["msg"])
+                return false;
+            }
+        }
+    }
+
     function CreateLiveRecordButton(father) {
         let buttonRecord = document.createElement("button");
         father.appendChild(buttonRecord);
@@ -31,7 +66,7 @@
             const xhr = new XMLHttpRequest();
             const path = "/api/v1/record_live";
             const params = {
-                "live_name": {{ .live_name }}
+                "live_name": liveName
             }
             xhr.open("POST", path);
 
@@ -69,11 +104,11 @@
         return videoElement
     }
 
-    function getStreamingAddr() {
-        let rtmpUrl = {{ .rtmp_url }};
-        let flvUrl = {{ .flv_url }};
-
-        let centerContent = document.getElementById("extra-content");
+    function GetStreamingAddr() {
+        if (!NewLive()) {
+            return;
+        }
+        let centerContent = document.getElementById("center-content");
         while (centerContent.firstChild) {
             centerContent.firstChild.remove()
         }
@@ -128,9 +163,10 @@
         let recordButton = CreateLiveRecordButton(centerContent);
     }
 
-    function startLiveWithWebrtc(videoSrc) {
-        let webrtcUrl = {{ .webrtc_url }};
-
+    function StartLiveWithWebrtc(videoSrc) {
+        if (!NewLive()) {
+            return;
+        }
         constraints = {
             audio: true,
             video: {
@@ -138,7 +174,7 @@
             }
         };
 
-        let centerContent = document.getElementById("extra-content");
+        let centerContent = document.getElementById("center-content");
         while (centerContent.firstChild) {
             centerContent.firstChild.remove()
         }

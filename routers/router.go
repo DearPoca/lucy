@@ -51,6 +51,7 @@ func init() {
 		apiV1.GET("/userinfo", v1.GetUserInfo)
 		apiV1.POST("/record_live", v1.RecordLive)
 		apiV1.GET("/list_record", v1.ListRecord)
+		apiV1.GET("/new_live", v1.NewLive)
 	}
 }
 

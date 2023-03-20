@@ -7,6 +7,7 @@ import (
 type Live struct {
 	gorm.Model
 	Name         string `gorm:"name"`
+	Title        string `gorm:"title"`
 	Owner        string `gorm:"owner"`
 	WebrtcUrl    string `gorm:"webrtc_url"`
 	RtmpUrl      string `gorm:"rtmp_url"`
