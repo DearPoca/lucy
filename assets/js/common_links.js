@@ -1,6 +1,6 @@
 let common_links = [
     {title: "lives", url: "/"},
-    {title: "my live", url: "/my_live"},
+    {title: "new live", url: "/new_live"},
 ];
 
 function addLinks() {

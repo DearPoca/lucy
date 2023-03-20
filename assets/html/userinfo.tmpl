@@ -9,10 +9,23 @@
 </head>
 <body>
     <table id="userinfo-list">
+        <caption align="top">userinfo-list</caption> 
         <thead>
             <tr>
                 <th>attribute</th>
                 <th>value</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <table id="live-records-list">
+        <caption align="top">live-records-list</caption>
+        <thead>
+            <tr>
+                <th>live name</th>
+                <th>live start time</th>
+                <th>record</th>
             </tr>
         </thead>
         <tbody>
@@ -26,26 +39,58 @@
         td.innerHTML = text;
     }
 
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const resJson = JSON.parse(xhr.response)
+    function createLink(father, url) {
+        let td = document.createElement("td");
+        father.appendChild(td);
+        let a = document.createElement("a");
+        td.appendChild(a)
+        a.href = url
+        a.textContent = "Link"
+    }
+
+    let xhr_info = new XMLHttpRequest();
+    xhr_info.onreadystatechange = function () {
+        if (xhr_info.readyState === 4 && xhr_info.status === 200) {
+            const resJson = JSON.parse(xhr_info.response)
             console.log(resJson)
             if (resJson["code"] == 200) {
                 let table = document.getElementById("userinfo-list");
                 Object.entries(resJson["data"]).forEach(([key, value]) => {
                     console.log(key + ": " + value);
                     let tr = document.createElement("tr");
-                    table.children[1].appendChild(tr);
+                    table.children[2].appendChild(tr);
                     createTd(tr, key)
                     createTd(tr, value)
                 });
             }
         }
     }
-    let url = `/api/v1/userinfo`
-    xhr.open("get", url)
-    xhr.send();
+    xhr_info.open("get", "/api/v1/userinfo")
+    xhr_info.send();
+
+    let xhr_record = new XMLHttpRequest();
+    xhr_record.onreadystatechange = function () {
+        if (xhr_record.readyState === 4 && xhr_record.status === 200) {
+            const resJson = JSON.parse(xhr_record.response)
+            console.log(resJson)
+            if (resJson["code"] == 200) {
+                let table = document.getElementById("live-records-list");
+                for (let i = 0; i < resJson["data"].length; i++) {
+                    let tr = document.createElement("tr");
+                    table.children[2].appendChild(tr);
+                    createTd(tr, resJson["data"][i]["name"])
+                    createTd(tr, resJson["data"][i]["start_time"])
+                    if ("record_url" in resJson["data"][i]) {
+                        createLink(tr, resJson["data"][i]["record_url"])
+                    } else {
+                        createTd(tr, "")
+                    }
+                }
+            }
+        }
+    }
+    xhr_record.open("get", "/api/v1/list_record")
+    xhr_record.send();
 </script>
 </html>
 

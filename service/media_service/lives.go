@@ -7,6 +7,7 @@ import (
 
 	"lucy/models"
 	"lucy/pkg/log"
+	"lucy/pkg/setting"
 	"lucy/utils"
 )
 
@@ -18,57 +19,95 @@ const recording = "recording"
 const available = "available"
 
 type Live struct {
-	Id         string `json:"id"`
-	Owner      string `json:"owner"`
-	WebrtcLink string `json:"webrtc link"`
-	FlvLink    string `json:"flv link"`
+	Id        string `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Owner     string `json:"owner,omitempty"`
+	WebrtcUrl string `json:"webrtc_link,omitempty"`
+	RtmpUrl   string `json:"rtmp_link,omitempty"`
+	FlvUrl    string `json:"flv_link,omitempty"`
+	StartTime string `json:"start_time,omitempty"`
+	RecordUrl string `json:"record_url,omitempty"`
 }
 
-func GetLives() []Live {
+func GetLiveByStream(stream *Stream) (*Live, error) {
+	if !stream.Publish.Active {
+		return nil, errors.New("stream inactive")
+	}
+	if !VerifyLiveName(stream.Url) {
+		return nil, errors.New("stream format error")
+	}
+	l := models.Live{}
+	err := models.Db().Where(models.Live{Name: stream.Url}).First(&l).Error
+
+	if err != nil {
+		return nil, err
+	} else {
+		ret := Live{
+			Id:        stream.Id,
+			Name:      l.Name,
+			Owner:     l.Owner,
+			WebrtcUrl: l.WebrtcUrl,
+			RtmpUrl:   l.RtmpUrl,
+			FlvUrl:    l.HttpFlvUrl,
+			StartTime: l.CreatedAt.String(),
+		}
+		if l.RecordStatus == available {
+			ret.RecordUrl = l.RecordPath
+		}
+		return &ret, nil
+	}
+}
+
+func GetActiveLives() []Live {
 	streams := GetStreams()
 	lives := make([]Live, 0)
 	for i, _ := range streams {
-		if !streams[i].Publish.Active || !VerifyLiveName(streams[i].Url) {
-			continue
+		r, err := GetLiveByStream(&streams[i])
+		if err != nil {
+			log.Warn("stream not valid", "stream", streams[i])
+		} else {
+			lives = append(lives, *r)
 		}
-		r := Live{
-			Id:         streams[i].Id,
-			Owner:      ParseUserFromLivePath(streams[i].Url),
-			WebrtcLink: fmt.Sprintf("/play/webrtc?live_id=%s", streams[i].Id),
-			FlvLink:    fmt.Sprintf("/play/flv?live_id=%s", streams[i].Id),
-		}
-		lives = append(lives, r)
+
 	}
 	return lives
 }
 
-func Record(streamUrl string, username string) error {
-	i := len(streamUrl) - 1
-	formatErr := errors.New("rtmp url format error")
-	log.Debug("Record", "streamUrl", streamUrl, "username", username)
-	if len(streamUrl) < 4 || streamUrl[len(streamUrl)-4:] != ".flv" {
-		return formatErr
+func GetLivesByUser(username string) ([]Live, error) {
+	var ls []models.Live
+	err := models.Db().Where(models.Live{Owner: username}).Find(&ls).Error
+	var ret []Live
+	if err != nil {
+		log.Info("user have no live", "username", username)
+		return ret, errors.New("user have no live")
 	}
-	for j := 0; j < 3; j++ {
-		for i >= 0 && streamUrl[i] != '/' {
-			i--
+	for i, _ := range ls {
+		live := Live{
+			Name:      ls[i].Name,
+			Owner:     ls[i].Owner,
+			WebrtcUrl: ls[i].WebrtcUrl,
+			RtmpUrl:   ls[i].RtmpUrl,
+			FlvUrl:    ls[i].HttpFlvUrl,
+			StartTime: ls[i].CreatedAt.String(),
 		}
-		if i < 0 {
-			return formatErr
+		if ls[i].RecordStatus == available {
+			live.RecordUrl = ls[i].RecordPath
 		}
-		i--
+		ret = append(ret, live)
 	}
-	liveName := streamUrl[i+1 : len(streamUrl)-4]
-	log.Debug("Get liveName", "liveName", liveName)
+	return ret, nil
+}
 
+func LiveRecord(liveName string, username string) error {
+	log.Debug("LiveRecord", "liveName", liveName, "username", username)
 	if !VerifyLiveName(liveName) {
-		return formatErr
+		return errors.New("live name format error")
 	}
 	if username != ParseUserFromLivePath(liveName) {
 		return errors.New("requester are not owner")
 	}
 
-	l := models.Live{}
+	var l models.Live
 	err := models.Db().Where(models.Live{Name: liveName}).First(&l).Error
 	if err != nil {
 		log.Warn("Can not find live", "liveName", liveName)
@@ -83,11 +122,11 @@ func Record(streamUrl string, username string) error {
 		log.Warn("update live failed", "liveName", liveName)
 		return err
 	}
-	ffmpegRecord(streamUrl, liveName)
+	ffmpegRecord(l.HttpFlvUrl, liveName)
 	return nil
 }
 
-func GenerateLive(username string) (string, error) {
+func GenerateLive(username string) (*Live, error) {
 	lToA := func(buf *[]byte, i int64, wid int) {
 		var b [liveTokenLength + 1]byte
 		bp := len(b) - 1
@@ -106,18 +145,34 @@ func GenerateLive(username string) (string, error) {
 	for i := 0; i < len(buf) && buf[i] == '0'; i++ {
 		buf[i] = utils.RandStr(1)[0]
 	}
-	name := fmt.Sprintf("/%s/%s/%s", app, username, string(buf))
+	livaName := fmt.Sprintf("/%s/%s/%s", app, username, string(buf))
 	l := &models.Live{
-		Name:         name,
-		Owner:        username,
+		Name:  livaName,
+		Owner: username,
+		WebrtcUrl: fmt.Sprintf("webrtc://%s:%s%s",
+			setting.SrsSetting.Ip, setting.SrsSetting.HttpApiPort,
+			livaName),
+		RtmpUrl: fmt.Sprintf("rtmp://%s:%s%s",
+			setting.SrsSetting.Ip, setting.SrsSetting.RtmpPort,
+			livaName),
+		HttpFlvUrl: fmt.Sprintf("http://%s:%s%s.flv",
+			setting.SrsSetting.Ip, setting.SrsSetting.NginxHttpPort,
+			livaName),
 		RecordStatus: noRecord,
 		RecordPath:   "",
 	}
-	err := models.Db().Create(l).Error
-	if err != nil {
-		return "", err
+	ret := &Live{
+		Owner:     username,
+		Name:      livaName,
+		WebrtcUrl: l.WebrtcUrl,
+		RtmpUrl:   l.RtmpUrl,
+		FlvUrl:    l.HttpFlvUrl,
 	}
-	return name, nil
+	err := models.Db().Create(&l).Error
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 func ParseUserFromLivePath(path string) string {

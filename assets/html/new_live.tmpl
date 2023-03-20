@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>my live</title>
+    <title>new live</title>
     <div id="username" data-value={{ .username }}></div>
     <script src="/assets/js/common_links.js"></script>
     <script src="/assets/js/third_party/srs.sdk.js"></script>
@@ -14,24 +14,24 @@
 <body>
     <br><br>
     <center>
-        <button onclick='startLiveWithWebrtc("screen")'>screen sharing</button>
-        <button onclick='startLiveWithWebrtc("camera")'>camera capture</button>
-        <button onclick='getStreamingAddr()'>streaming addr</button>
+        <button type="button" onclick='startLiveWithWebrtc("screen")'>screen sharing</button>
+        <button type="button" onclick='startLiveWithWebrtc("camera")'>camera capture</button>
+        <button type="button" onclick='getStreamingAddr()'>streaming addr</button>
         <div id="extra-content">
         </div>
     </center>
 </body>
 <script>
-    function CreateLiveRecordButton(father, streamUrl) {
+    function CreateLiveRecordButton(father) {
         let buttonRecord = document.createElement("button");
         father.appendChild(buttonRecord);
         buttonRecord.type = "button"
         buttonRecord.textContent = "record"
         buttonRecord.onclick = function () {
             const xhr = new XMLHttpRequest();
-            const path = "/api/v1/record";
+            const path = "/api/v1/record_live";
             const params = {
-                "stream_url": streamUrl
+                "live_name": {{ .live_name }}
             }
             xhr.open("POST", path);
 
@@ -125,12 +125,11 @@
         centerContent.appendChild(document.createElement("br"));
         centerContent.appendChild(buttonCopy);
         centerContent.appendChild(buttonWatch);
-        let recordButton = CreateLiveRecordButton(centerContent, flvUrl);
+        let recordButton = CreateLiveRecordButton(centerContent);
     }
 
     function startLiveWithWebrtc(videoSrc) {
         let webrtcUrl = {{ .webrtc_url }};
-        let flvUrl = {{ .flv_url }};
 
         constraints = {
             audio: true,
@@ -149,7 +148,7 @@
         if (old_video) {
             old_video.remove()
         }
-        let recordButton = CreateLiveRecordButton(centerContent, flvUrl);
+        let recordButton = CreateLiveRecordButton(centerContent);
         let videoElement = CreateVideoElement(centerContent, video_id);
 
         let sdk = new SrsRtcPublisherAsync(constraints, videoSrc);

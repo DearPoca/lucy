@@ -88,6 +88,6 @@ func CreateUser(username string, password string, email string, telephone string
 	u.Email = email
 	u.Telephone = telephone
 
-	models.Db().Create(u)
+	models.Db().Create(&u)
 	return nil
 }

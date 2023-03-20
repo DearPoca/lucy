@@ -85,28 +85,23 @@ func playFlv(c *gin.Context) {
 	c.String(http.StatusOK, "live no found!")
 }
 
-func myLive(c *gin.Context) {
+func newLive(c *gin.Context) {
 	username, exists := c.Get(jwt.KeyOfUsername)
 	if !exists {
 		username = "user"
 	}
-	liveName, err := media_service.GenerateLive(username.(string))
+	live, err := media_service.GenerateLive(username.(string))
 	if err != nil {
 		log.Warn("Generate live failed", err, err.Error())
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
 		c.Abort()
 		return
 	}
-	c.HTML(http.StatusOK, "my_live.tmpl", gin.H{
-		"username": username,
-		"webrtc_url": fmt.Sprintf("webrtc://%s:%s%s",
-			setting.SrsSetting.Ip, setting.SrsSetting.HttpApiPort,
-			liveName),
-		"rtmp_url": fmt.Sprintf("rtmp://%s:%s%s",
-			setting.SrsSetting.Ip, setting.SrsSetting.RtmpPort,
-			liveName),
-		"flv_url": fmt.Sprintf("http://%s:%s%s.flv",
-			setting.SrsSetting.Ip, setting.SrsSetting.NginxHttpPort,
-			liveName),
+	c.HTML(http.StatusOK, "new_live.tmpl", gin.H{
+		"username":   username,
+		"webrtc_url": live.WebrtcUrl,
+		"rtmp_url":   live.RtmpUrl,
+		"flv_url":    live.FlvUrl,
+		"live_name":  live.Name,
 	})
 }

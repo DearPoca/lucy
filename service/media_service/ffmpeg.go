@@ -10,11 +10,14 @@ import (
 	"lucy/pkg/setting"
 )
 
+const LiveRecordPath = "/live-record"
+
 // ffmpegRecord use ffmpeg to record live video
 func ffmpegRecord(streamUrl string, liveName string) {
 	go func() {
 		owner := ParseUserFromLivePath(liveName)
-		ownerDir := fmt.Sprintf("%s/live-record/%s", setting.AppSetting.AppRoot, owner)
+		ownerDir := fmt.Sprintf("%s%s/%s", setting.AppSetting.AppRoot, LiveRecordPath, owner)
+		os.MkdirAll(ownerDir, os.ModePerm)
 		outFileName := func() string {
 			i := len(liveName) - 1
 			for liveName[i] != '/' {
@@ -22,7 +25,7 @@ func ffmpegRecord(streamUrl string, liveName string) {
 			}
 			return liveName[i+1:] + ".mp4"
 		}()
-		os.MkdirAll(ownerDir, os.ModePerm)
+		relativePath := fmt.Sprintf("%s/%s/%s", LiveRecordPath, owner, outFileName)
 		outFilePath := fmt.Sprintf("%s/%s", ownerDir, outFileName)
 		cmd := exec.Command("ffmpeg", "-i", streamUrl, outFilePath, "-y")
 		err := cmd.Run()
@@ -39,7 +42,7 @@ func ffmpegRecord(streamUrl string, liveName string) {
 		err = models.Db().Model(&l).Where(models.Live{Name: liveName}).
 			Updates(models.Live{
 				RecordStatus: available,
-				RecordPath:   outFilePath,
+				RecordPath:   relativePath,
 			}).Error
 		if err != nil {
 			log.Warn("update database failed", "err", err)
