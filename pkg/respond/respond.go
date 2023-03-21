@@ -16,6 +16,7 @@ const (
 	CodeGetUserInfoFailed       = 406
 	CodeLiveNotFound            = 407
 	CodeLiveTitleEmpty          = 408
+	CodeRecordStarted           = 409
 	CodeUnknownError            = 400
 )
 
@@ -29,6 +30,7 @@ var codeToMsg = map[int]string{
 	CodeLiveNotFound:            "live not found",
 	CodeGetUserInfoFailed:       "get user info failed",
 	CodeLiveTitleEmpty:          "live title empty",
+	CodeRecordStarted:           "record already started",
 	CodeUnknownError:            "unknown error",
 }
 

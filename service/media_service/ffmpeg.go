@@ -10,24 +10,23 @@ import (
 	"lucy/pkg/setting"
 )
 
-const LiveRecordPath = "/live-record"
+const LiveRecordPath = "live-record"
 
 // ffmpegRecord use ffmpeg to record live video
 func ffmpegRecord(streamUrl string, liveName string) {
 	go func() {
-		owner := ParseUserFromLivePath(liveName)
-		ownerDir := fmt.Sprintf("%s%s/%s", setting.AppSetting.AppRoot, LiveRecordPath, owner)
+		owner, token, ok := ParseLiveName(liveName)
+		if !ok {
+			return
+		}
+		ownerDir := fmt.Sprintf("%s/%s/%s", setting.AppSetting.AppRoot, LiveRecordPath, owner)
 		os.MkdirAll(ownerDir, os.ModePerm)
-		outFileName := func() string {
-			i := len(liveName) - 1
-			for liveName[i] != '/' {
-				i--
-			}
-			return liveName[i+1:] + ".mp4"
-		}()
+		outFileName := token + ".mp4"
 		relativePath := fmt.Sprintf("%s/%s/%s", LiveRecordPath, owner, outFileName)
-		outFilePath := fmt.Sprintf("%s/%s", ownerDir, outFileName)
-		cmd := exec.Command("ffmpeg", "-i", streamUrl, outFilePath, "-y")
+		localFilePath := fmt.Sprintf("%s/%s", ownerDir, outFileName)
+		log.Debug("ffmpegRecord", "outFileName", outFileName,
+			"relativePath", relativePath, "localFilePath", localFilePath)
+		cmd := exec.Command("ffmpeg", "-i", streamUrl, localFilePath, "-y")
 		err := cmd.Run()
 		l := models.Live{}
 		if err != nil {
@@ -48,7 +47,7 @@ func ffmpegRecord(streamUrl string, liveName string) {
 			log.Warn("update database failed", "err", err)
 		} else {
 			log.Info("record success", "streamUrl", streamUrl,
-				"liveName", liveName, "recordPath", outFilePath)
+				"liveName", liveName, "recordPath", localFilePath)
 		}
 	}()
 }

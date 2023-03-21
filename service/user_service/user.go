@@ -1,9 +1,10 @@
 package user_service
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
+
+	"lucy/pkg/errors"
 
 	"lucy/models"
 	"lucy/utils"
@@ -72,13 +73,13 @@ func GetUserInfo(username string) (*UserInfo, error) {
 
 func CreateUser(username string, password string, email string, telephone string) error {
 	if !VerifyPhoneFormat(telephone) {
-		return errors.New("telephone number not valid")
+		return errors.ErrTelephoneNumNotValid
 	}
 	if !VerifyEmailFormat(email) {
-		return errors.New("email number not valid")
+		return errors.ErrEmailFormatError
 	}
 	if len(username) == 0 || len(password) == 0 {
-		return errors.New("username or password not valid")
+		return errors.ErrUsernameOrPasswordNotValid
 	}
 
 	u := &models.User{}

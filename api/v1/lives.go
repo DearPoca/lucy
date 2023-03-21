@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"lucy/middleware/jwt"
+	"lucy/pkg/errors"
 	"lucy/pkg/log"
 	"lucy/pkg/respond"
 	"lucy/service/media_service"
@@ -57,7 +58,11 @@ func RecordLive(c *gin.Context) {
 	}
 	if err = media_service.LiveRecord(request.LiveName, username.(string)); err != nil {
 		log.Warn("RecordLive failed", "body", string(buf), "username", username, "err", err.Error())
-		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
+		if err == errors.ErrRecordingStarted {
+			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeRecordStarted))
+		} else {
+			c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeUnknownError))
+		}
 	} else {
 		log.Debug("record success", "request", request)
 		c.JSON(http.StatusOK, respond.CreateRespond(respond.CodeSuccess))

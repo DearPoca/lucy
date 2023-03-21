@@ -1,9 +1,10 @@
 package media_service
 
 import (
-	"errors"
 	"fmt"
 	"time"
+
+	"lucy/pkg/errors"
 
 	"lucy/models"
 	"lucy/pkg/log"
@@ -32,10 +33,10 @@ type Live struct {
 
 func GetLiveByStream(stream *Stream) (*Live, error) {
 	if !stream.Publish.Active {
-		return nil, errors.New("stream inactive")
+		return nil, errors.ErrStreamInactive
 	}
 	if !VerifyLiveName(stream.Url) {
-		return nil, errors.New("stream format error")
+		return nil, errors.ErrStreamFormatError
 	}
 	l := models.Live{}
 	err := models.Db().Where(models.Live{Name: stream.Url}).First(&l).Error
@@ -70,7 +71,6 @@ func GetActiveLives() []Live {
 		} else {
 			lives = append(lives, *r)
 		}
-
 	}
 	return lives
 }
@@ -82,7 +82,7 @@ func GetLiveById(liveId string) (*Live, error) {
 			var l models.Live
 			err := models.Db().Where(models.Live{Name: streams[i].Url}).First(&l).Error
 			if err != nil {
-				return nil, errors.New("live not found")
+				return nil, errors.ErrLiveNotFound
 			}
 			ret := Live{
 				Id:        liveId,
@@ -100,7 +100,7 @@ func GetLiveById(liveId string) (*Live, error) {
 			return &ret, nil
 		}
 	}
-	return nil, errors.New("live not found")
+	return nil, errors.ErrLiveNotFound
 }
 
 func GetLivesByUser(username string) ([]Live, error) {
@@ -109,7 +109,7 @@ func GetLivesByUser(username string) ([]Live, error) {
 	var ret []Live
 	if err != nil {
 		log.Info("user have no live", "username", username)
-		return ret, errors.New("user have no live")
+		return ret, errors.ErrUserHaveNoLive
 	}
 	for i, _ := range ls {
 		live := Live{
@@ -132,10 +132,11 @@ func GetLivesByUser(username string) ([]Live, error) {
 func LiveRecord(liveName string, username string) error {
 	log.Debug("LiveRecord", "liveName", liveName, "username", username)
 	if !VerifyLiveName(liveName) {
-		return errors.New("live name format error")
+		return errors.ErrLiveFormatError
 	}
-	if username != ParseUserFromLivePath(liveName) {
-		return errors.New("requester are not owner")
+	if owner, _, ok := ParseLiveName(liveName); !ok || owner != username {
+		log.Debug("LiveRecord", "owner", owner, "username", username, "ok", ok)
+		return errors.ErrRequesterNotOwner
 	}
 
 	var l models.Live
@@ -145,7 +146,7 @@ func LiveRecord(liveName string, username string) error {
 		return err
 	}
 	if l.RecordStatus != noRecord {
-		return errors.New("recording has been started")
+		return errors.ErrRecordingStarted
 	}
 	err = models.Db().Model(&l).Where(models.Live{Name: liveName}).
 		Update("record_status", recording).Error
@@ -208,19 +209,45 @@ func GenerateLive(username string, title string) (*Live, error) {
 	return ret, nil
 }
 
-func ParseUserFromLivePath(path string) string {
-	return path[len(app)+2 : len(path)-liveTokenLength-1]
+func ParseLiveName(liveName string) (owner, token string, ok bool) {
+	if !VerifyLiveName(liveName) {
+		return "", "", false
+	}
+	flag := 1
+	var ownerBuf []byte
+	var tokenBuf []byte
+	for i := len(app) + 2; i < len(liveName); i++ {
+		if liveName[i] == '/' {
+			flag++
+		} else {
+			if flag == 1 {
+				ownerBuf = append(ownerBuf, liveName[i])
+			} else {
+				tokenBuf = append(tokenBuf, liveName[i])
+			}
+		}
+	}
+	owner = string(ownerBuf)
+	token = string(tokenBuf)
+	ok = true
+	return
 }
 
-func VerifyLiveName(name string) bool {
-	if len(name) < liveTokenLength+len(app)+3 {
+func VerifyLiveName(liveName string) bool {
+	if len(liveName) < liveTokenLength+len(app)+3 {
 		return false
 	}
-	if name[1:len(app)+1] != app {
+	if liveName[0] != '/' || liveName[1:len(app)+1] != app {
 		return false
 	}
-	if name[len(name)-liveTokenLength-1] != '/' {
+	if liveName[len(liveName)-liveTokenLength-1] != '/' {
 		return false
 	}
-	return true
+	count := 0
+	for i := 0; i < len(liveName); i++ {
+		if liveName[i] == '/' {
+			count++
+		}
+	}
+	return count == 3
 }

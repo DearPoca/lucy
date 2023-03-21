@@ -169,9 +169,7 @@
         }
         constraints = {
             audio: true,
-            video: {
-                width: {ideal: 1280, max: 1920}
-            }
+            video: true
         };
 
         let centerContent = document.getElementById("center-content");
@@ -220,6 +218,9 @@
             videoElement.hide();
             console.error(reason);
         });
+        window.onbeforeunload = function() {
+            sdk.close();
+        }
     }
 </script>
 </html>

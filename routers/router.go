@@ -27,7 +27,7 @@ func init() {
 	r.StaticFS("/assets/js", http.Dir("assets/js"))
 	r.StaticFS("/assets/css", http.Dir("assets/css"))
 	r.StaticFS(media_service.LiveRecordPath, http.Dir(
-		fmt.Sprintf("%s%s", setting.AppSetting.AppRoot, media_service.LiveRecordPath),
+		fmt.Sprintf("%s/%s", setting.AppSetting.AppRoot, media_service.LiveRecordPath),
 	))
 	r.StaticFile("/favicon.ico", "assets/favicon.ico")
 
